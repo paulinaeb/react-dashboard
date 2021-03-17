@@ -167,7 +167,7 @@ const BasicForms = () => {
                     <CLabel>Static</CLabel>
                   </CCol>
                   <CCol xs="12" md="9">
-                    <p className="form-control-static">Username</p>
+                    <p className="form-control-static">Username12</p>
                   </CCol>
                 </CFormGroup>
                 <CFormGroup row>
