@@ -142,10 +142,10 @@ const _nav =  [
   // {
   //   _tag: 'CSidebarNavDropdown',
   //   name: 'Buttons',
-  //   route: '/buttons',
   //   icon: 'cil-cursor',
   //   _children: [
   //     {
+  //   route: '/buttons',
   //       _tag: 'CSidebarNavItem',
   //       name: 'Buttons',
   //       to: '/buttons/buttons',

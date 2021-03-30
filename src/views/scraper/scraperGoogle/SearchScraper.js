@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import {
 	CCol,
   	CRow,
@@ -7,45 +7,61 @@ import {
  	CCardBody
 	
 } from '@coreui/react'
-
-import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
+import { useLocation } from "react-router-dom";
+import googleDataServices from '../../../services/googleServices'
 
-const SearchScraper = () => {
+const SearchScraper = (props) => {
 
-// const [rowData, setRowData] = useState([]);
-// const [gridApi, setGridApi] = useState(null);
-// useEffect(() => {
-//     fetch('https://www.ag-grid.com/example-assets/row-data.json')
-//      .then(result => result.json())
-//      .then(rowData => setRowData(rowData))
-// }, []);
+	const [rowData,setRowData] = useState([])
+	const location = useLocation();	
+	let count = location.customNameData.count;
+	let document = location.customNameData.document;
+	const keywords = location.customNameData.keywords;
+	console.log(keywords)
+	const getLocations = id => {
+	     googleDataServices.get(id)
+	      .then(response => {
+	        console.log(response.data);
+	        setRowData(response.data)
+	      })
+	      .catch(e => {
+	        console.log(e);
+	      });
+	  };
 
-const [rowData] = useState([
-    {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "Conmar-web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "OpenTech C.A", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "Mobil-app", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "desing- Admin", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "Guyana dev", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "Dev caracas", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-    
-]);
+	useEffect(() => {
+	    getLocations(document);
+	}, [document]);
+
+	// const [rowData] = useState([
+	//     {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "Conmar-web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "OpenTech C.A", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "Mobil-app", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "desing- Admin", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "Guyana dev", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "Dev caracas", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	//     {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
+	    
+	// ]);
 	
-	const rowStyle = { background: 'black' };
+	
+	// useEffect(() => {
+	//        console.log(location.pathname); // result: '/secondpage'
+	//        console.log(location.customNameData); // result: '?query=abc'
+	// }, [location]);
+	// useEffect(() => {
+ //     fetch('https://www.ag-grid.com/example-assets/row-data.json')
+	//     .then(result => result.json())
+	//      .then(rowData => setRowData(rowData))
+	//  }, []);
 
-// set background colour on even rows again, this looks bad, should be using CSS classes
-const getRowStyle = params => {
-    if (params.node.rowIndex % 2 === 0) {
-        return { background: 'red' };
-    }
-};
-
+	
 	return(
 		<CRow>
 			<CCol xs="12">
@@ -55,12 +71,12 @@ const getRowStyle = params => {
 						<CRow>
 							<CCol xs="">
 							
-								Busqueda: Desarrollo web
+								Busqueda: 
 							
 							</CCol>
 							<CCol xs="6">
 							
-								Count : 9
+								Count : {count}
 							
 							</CCol>
 						</CRow>
@@ -78,10 +94,11 @@ const getRowStyle = params => {
 						        pagination={true}
 						        paginationPageSize={6}
 						        >
-				                <AgGridColumn rowStyle={rowStyle} getRowStyle={getRowStyle} sortable={ true } field="Nombre" checkboxSelection={ true } ></AgGridColumn>
-				                <AgGridColumn field="Telefono" filter={ true }></AgGridColumn>
-				                <AgGridColumn field="Direccion"></AgGridColumn>
-				                <AgGridColumn field="Web"></AgGridColumn>
+				                <AgGridColumn  sortable={ true } field="NOMBRE" checkboxSelection={ true } ></AgGridColumn>
+				                <AgGridColumn field="TELEFONO" filter={ true }></AgGridColumn>
+				                <AgGridColumn field="DIRECCION"></AgGridColumn>
+				                <AgGridColumn field="SITIO_WEB"></AgGridColumn>
+				                <AgGridColumn field="INPUT"></AgGridColumn>
 				            </AgGridReact>
 				        </div>
 					</CCardBody>
@@ -89,9 +106,6 @@ const getRowStyle = params => {
 			</CCol>
 		</CRow>
 	);
-
-
-
 
 }
 

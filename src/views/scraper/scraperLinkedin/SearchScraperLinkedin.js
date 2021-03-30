@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
 	CCol,
   	CRow,
@@ -6,25 +6,35 @@ import {
  	CCardHeader,
  	CCardBody
 } from '@coreui/react'
-import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
+import linkedinDataServices from '../../../services/linkedinServices'
+import { useLocation } from "react-router-dom";
 
-const SearchScraperLinkedin = () => {
-	const [rowData ] = useState([
-	    {Nombre: "juan perez", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "pablo cort", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "jaime lopez", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "luis angola", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "neikitsu kimura", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "harry potter", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "carlos vera", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "ana longuis", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    {Nombre: "cris brito", especialidad: "ingenireo en informatica", esperiencia: "desarrollo movil, Google", contacto: "perso"},
-	    
-	]);
+const SearchScraperLinkedin = (props) => {
+
+	const [rowData,setRowData] = useState([])
+	const location = useLocation();
+
+	let count = location.customNameData.count;
+	let document = location.customNameData.document;
+	const keywords = location.customNameData.keywords;
+	const getPeople = id => {
+	     linkedinDataServices.get(id)
+	      .then(response => {
+	        console.log(response.data);
+	        setRowData(response.data)
+	      })
+	      .catch(e => {
+	        console.log(e);
+	      });
+	  };
+
+	useEffect(() => {
+	    getPeople(document);
+	}, [document]);
 
 
 	return(
@@ -36,12 +46,12 @@ const SearchScraperLinkedin = () => {
 						<CRow>
 							<CCol xs="">
 							
-								Busqueda: Ingeniero en informatica
+								Busqueda: {keywords[0]}
 							
 							</CCol>
 							<CCol xs="6">
 							
-								Count : 9
+								Count : {count}
 							
 							</CCol>
 						</CRow>
@@ -60,9 +70,13 @@ const SearchScraperLinkedin = () => {
 						        paginationPageSize={6}
 						        >
 				                <AgGridColumn sortable={ true } field="Nombre" checkboxSelection={ true } ></AgGridColumn>
-				                <AgGridColumn field="especialidad" filter={ true }></AgGridColumn>
-				                <AgGridColumn field="esperiencia"></AgGridColumn>
-				                <AgGridColumn field="contacto"></AgGridColumn>
+				                <AgGridColumn field="Especialidad" filter={ true }></AgGridColumn>
+				                <AgGridColumn field="ExperienciaLaboral"></AgGridColumn>
+				                <AgGridColumn field="Contacto.Perfil"></AgGridColumn>
+				                <AgGridColumn field="Contacto.Sitios_Web"></AgGridColumn>
+				                <AgGridColumn field="Contacto.Twitter"></AgGridColumn>
+				                <AgGridColumn field="Contacto.Cumpleanios"></AgGridColumn>
+
 				            </AgGridReact>
 				        </div>
 					</CCardBody>
