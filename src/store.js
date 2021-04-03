@@ -4,7 +4,7 @@ const initialState = {
   sidebarShow: 'responsive'
 }
 
-const changeState = (state = initialState, { type, ...rest }) => {
+const reducer = (state = initialState, { type, ...rest }) => {
   switch (type) {
     case 'set':
       return {...state, ...rest }
@@ -13,5 +13,8 @@ const changeState = (state = initialState, { type, ...rest }) => {
   }
 }
 
-const store = createStore(changeState)
+const store = createStore(
+  reducer,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+)
 export default store
