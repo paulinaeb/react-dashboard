@@ -11,14 +11,6 @@ import {
   CLabel,
   CInput,
   CForm,
-  CInputGroup,
-  CInputGroupPrepend,
-  CInputGroupText,
-  CModal,
-  CModalBody,
-  CModalFooter,
-  CModalHeader,
-  CModalTitle,
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 
@@ -32,17 +24,7 @@ import service from "src/services/instagram";
 const ScraperInstagram = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
-
-  const [loading, setLoading] = useState(false);
   const [rowData, setRowData] = useState(null);
-
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-
-  const [modal, setModal] = useState(false);
-  const [modalColor, setModalColor] = useState("primary");
-  const [modalMessage, setModalMessage] = useState({title: "", body: ""});
-
   const history = useHistory();
 
   const onGridReady = (params) => {
@@ -51,7 +33,6 @@ const ScraperInstagram = () => {
   };
 
   const getProfiles = async (page = 0, size = 10) => {
-    setLoading(true);
     try {
       let res = await service.getScrapedProfiles(page, size);
       console.log("response", res.data);
@@ -60,8 +41,6 @@ const ScraperInstagram = () => {
     } catch (e) {
       console.log("error en getProfiles", e);
       setRowData([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -71,33 +50,8 @@ const ScraperInstagram = () => {
 
   const navigateToScrape = (e) => {
     console.log("row clicked", e);
-    console.log(e.data.id, " ", e.data.scraped_date["$date"]);
+    console.log(e.data.id, ' ', e.data.scraped_date['$date']);
     // history.push("/dashboard");
-  };
-
-  const startScrape = async (e) => {
-    let res = null;
-    e.preventDefault();
-    try {
-      res = await service.startScraper(username, email);
-      console.log("response", res);
-    } catch (e) {
-      console.log("error en startScrape", e);
-    }
-    if (res.status === 202) {
-      setModalColor("success");
-      setModalMessage({
-        title: "Scrape inciado!",
-        body: "Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado"
-      });
-    } else {
-      setModalColor("danger");
-      setModalMessage({
-        title: "Hubo un error...",
-        body: "Ha ocurrido un error al inciar el scrape"
-      });
-    }
-    setModal(true);
   };
 
   return (
@@ -108,44 +62,31 @@ const ScraperInstagram = () => {
           <CCardBody>
             <CRow>
               <CCol md="4">
-                <CForm id="scrape-form" onSubmit={startScrape}>
+                <CForm action="" method="post">
                   <CFormGroup>
                     <CLabel htmlFor="username">
                       Nombre de usuario a analizar
                     </CLabel>
-                    <CInputGroup className="input-prepend">
-                      <CInputGroupPrepend>
-                        <CInputGroupText>@</CInputGroupText>
-                      </CInputGroupPrepend>
-                      <CInput
-                        name="username"
-                        placeholder="somosopentech"
-                        required
-                        onChange={(e) => setUsername(e.target.value)}
-                      />
-                    </CInputGroup>
+                    <CInput
+                      name="username"
+                      placeholder="somosopentech"
+                      required
+                    />
                   </CFormGroup>
                   <CFormGroup>
                     <CLabel htmlFor="nf-email">
                       Email que recibirá la notificación
                     </CLabel>
-                    <CInputGroup>
-                      <CInputGroupPrepend>
-                        <CInputGroupText>
-                          <CIcon name="cil-envelope-closed" />
-                        </CInputGroupText>
-                      </CInputGroupPrepend>
-                      <CInput
-                        type="email"
-                        name="nf-email"
-                        placeholder="correito@ejemplo.com"
-                        autoComplete="email"
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </CInputGroup>
+                    <CInput
+                      type="email"
+                      id="nf-email"
+                      name="nf-email"
+                      placeholder="Enter Email.."
+                      autoComplete="email"
+                    />
                   </CFormGroup>
                   <CButton type="submit" size="sm" color="success">
-                    <CIcon name="cil-check" /> Iniciar Scrape
+                    <CIcon name="cil-scrubber" /> Iniciar Scrape
                   </CButton>
                 </CForm>
               </CCol>
@@ -191,17 +132,6 @@ const ScraperInstagram = () => {
           </CCardBody>
         </CCard>
       </CCol>
-      <CModal show={modal} onClose={() => setModal(!modal)} color={modalColor}>
-        <CModalHeader closeButton>
-          <CModalTitle>{modalMessage.title}</CModalTitle>
-        </CModalHeader>
-        <CModalBody>{modalMessage.body}</CModalBody>
-        <CModalFooter>
-          <CButton color={modalColor} onClick={() => setModal(!modal)}>
-            Continuar
-          </CButton>
-        </CModalFooter>
-      </CModal>
     </CRow>
   );
 };
