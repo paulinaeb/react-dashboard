@@ -22,34 +22,37 @@ import service from "src/services/instagram";
 const ScraperInstagram = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
-  const [rowData, setRowData] = useState(defaultData);
+  const [rowData, setRowData] = useState(null);
 
   const history = useHistory();
   const location = useLocation();
+
+  const scrapedProfile = location.state;
+  const formattedDate = new Date(
+    scrapedProfile.scraped_date["$date"]
+  ).toLocaleString("es-VE");
 
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
   };
 
-  const getUsersEngagement = async (userId, timestamp) => {
+  const getUsersEngagement = async () => {
+    const { id, scraped_date } = scrapedProfile;
     try {
-      let res = await service.getScrapedDetails(userId, timestamp);
+      let res = await service.getScrapeDetails(id, scraped_date["$date"]);
       console.log("response", res.data);
-      // setRowData(res.data);
-      return res.data;
+      setRowData(res.data);
     } catch (e) {
-      console.log("error en getUsersEngagement", e);
-      // setRowData([]);
+      console.log("error en getUsersEngagement\n", e);
+      setRowData([]);
     }
   };
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const userId = searchParams.get("userId");
-    const timestamp = searchParams.get("timestamp");
-    getUsersEngagement(userId, timestamp);
-  }, [location]);
+    // const searchParams = new URLSearchParams(location.search);
+    getUsersEngagement();
+  }, []);
 
   return (
     <>
@@ -60,10 +63,10 @@ const ScraperInstagram = () => {
             <CCardHeader>
               <CRow>
                 <CCol xs="7">
-                  <h2>@usuarioscrapeado</h2>
+                  <h2>@{scrapedProfile.username}</h2>
                 </CCol>
                 <CCol xs="5" className="my-auto">
-                  <h5 className="my-auto">20/10/2021 5:45 p.m.</h5>
+                  <h6 className="my-auto">{formattedDate}</h6>
                 </CCol>
               </CRow>
             </CCardHeader>
@@ -71,10 +74,10 @@ const ScraperInstagram = () => {
               <CRow>
                 <CCol sm="6" className="ta-center">
                   <CWidgetProgressIcon
-                    header="87.500"
+                    header={scrapedProfile.follower_count}
                     text="Followers"
                     color="gradient-info"
-                    value="100"
+                    value={100}
                     className="insta-info-card"
                     inverse
                   >
@@ -83,10 +86,10 @@ const ScraperInstagram = () => {
                 </CCol>
                 <CCol sm="6">
                   <CWidgetProgressIcon
-                    header="385"
+                    header={scrapedProfile.following_count}
                     text="Following"
                     color="gradient-success"
-                    value="100"
+                    value={100}
                     className="insta-info-card"
                     inverse
                   >
@@ -98,9 +101,9 @@ const ScraperInstagram = () => {
                 <CCol sm="10">
                   <CWidgetBrand
                     color="instagram"
-                    rightHeader="3.7%"
+                    rightHeader={scrapedProfile.total_engagement}
                     rightFooter="ENGAGEMENT"
-                    leftHeader="4251"
+                    leftHeader={scrapedProfile.total_likes_count + scrapedProfile.total_comments_count}
                     leftFooter="INTERACCIONES"
                   >
                     <CIcon name="cib-instagram" height="36" className="my-3" />
@@ -113,8 +116,8 @@ const ScraperInstagram = () => {
         {/* Pie chart */}
         <CCol sm="6" xxl="7">
           <CCard>
-            {/* <CCardHeader>Doughnut Chart</CCardHeader> */}
-            <CCardBody style={{height: "500px"}}>
+            <CCardHeader>Distribución de interacciones</CCardHeader>
+            <CCardBody style={{ height: "400px" }}>
               <CChartDoughnut
                 datasets={[
                   {
@@ -145,7 +148,7 @@ const ScraperInstagram = () => {
             <CCardHeader>Engagements de los usuarios</CCardHeader>
             <CCardBody>
               <div
-                className="ag-theme-alpine instagram-grid"
+                className="ag-theme-alpine"
                 style={{ height: 500, width: "100%" }}
               >
                 <AgGridReact
@@ -157,24 +160,22 @@ const ScraperInstagram = () => {
                   // onRowClicked={navigateToScrape}
                 >
                   <AgGridColumn
-                    sortable
-                    headerName="Fecha"
-                    field="fecha"
-                    checkboxSelection={false}
-                    // valueGetter={(params) => {
-                    //   const unixTime = params.data.scraped_date["$date"];
-                    //   return new Date(unixTime).toLocaleString("es-VE");
-                    // }}
-                  />
-                  <AgGridColumn
                     field="username"
                     headerName="Usuario"
-                    filter
-                    sortable
+                    cellRenderer={(params) =>
+                      `<a href="https://www.instagram.com/${params.value}/"  target="_blank">${params.value}</a>`
+                    }
                   />
-                  <AgGridColumn field="posts" headerName="# de Posts" />
-                  <AgGridColumn field="followers" headerName="Followers" />
-                  <AgGridColumn field="following" headerName="Following" />
+                  <AgGridColumn field="like_count" headerName="# de Likes" />
+                  <AgGridColumn field="like_percent" headerName="% de Likes" />
+                  <AgGridColumn
+                    field="comment_count"
+                    headerName="# de Comments"
+                  />
+                  <AgGridColumn
+                    field="comment_percent"
+                    headerName="% de Comments"
+                  />
                 </AgGridReact>
               </div>
             </CCardBody>

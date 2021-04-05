@@ -34,14 +34,14 @@ const ScraperInstagram = () => {
   const [gridColumnApi, setGridColumnApi] = useState(null);
 
   const [loading, setLoading] = useState(false);
-  const [rowData, setRowData] = useState(defaultData);
+  const [rowData, setRowData] = useState(null);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
 
   const [modal, setModal] = useState(false);
   const [modalColor, setModalColor] = useState("primary");
-  const [modalMessage, setModalMessage] = useState({title: "", body: ""});
+  const [modalMessage, setModalMessage] = useState({ title: "", body: "" });
 
   const history = useHistory();
 
@@ -71,11 +71,14 @@ const ScraperInstagram = () => {
 
   const navigateToScrape = (e) => {
     console.log("row clicked", e);
-    // console.log(e.data.id, " ", e.data.scraped_date["$date"]);
-    // const userId = e.data.id;
-    // const timestamp = e.data.scraped_date["$date"];
-    history.push(`/instagramscraper/detail?userId=44889068058&timestamp=${1617559651727}`);
-    // history.push(`/instagramscraper/detail?userId=${userId}&timestamp=${timestamp}`);
+    console.log(e.data.id, " ", e.data.scraped_date["$date"]);
+    const userId = e.data.id;
+    const timestamp = e.data.scraped_date["$date"];
+    history.push({
+      pathname: `/instagramscraper/detail`,
+      state: e.data,
+    });
+    // history.push(`/instagramscraper/detail?userId=44889068058&timestamp=${1617559651727}`);
   };
 
   const startScrape = async (e) => {
@@ -92,13 +95,14 @@ const ScraperInstagram = () => {
       setModalColor("success");
       setModalMessage({
         title: "Scrape inciado!",
-        body: "Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado"
+        body:
+          "Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado",
       });
     } else {
       setModalColor("danger");
       setModalMessage({
         title: "Hubo un error...",
-        body: "Ha ocurrido un error al inciar el scrape"
+        body: "Ha ocurrido un error al inciar el scrape",
       });
     }
     setModal(true);
@@ -215,7 +219,7 @@ export default ScraperInstagram;
 const defaultData = [
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "Somosopentech",
     post_count: 32,
@@ -224,7 +228,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "PepitoManolo",
     post_count: 32,
@@ -233,7 +237,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "Platanitomaduro",
     post_count: 32,
@@ -242,7 +246,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "HolaBrenda",
     post_count: 32,
@@ -251,7 +255,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "NoseQueEstoyHaciendo",
     post_count: 32,
@@ -260,7 +264,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "AyudaPorfavo",
     post_count: 32,
@@ -269,7 +273,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "AAAAAA",
     post_count: 32,
@@ -278,7 +282,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "Somosopentech",
     post_count: 32,
@@ -287,7 +291,7 @@ const defaultData = [
   },
   {
     scraped_date: {
-      '$date': 123456789
+      $date: 123456789,
     },
     username: "Somosopentech",
     post_count: 32,
