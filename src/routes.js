@@ -41,6 +41,7 @@ const User = React.lazy(() => import('./views/users/User'));
 const ScraperGoogle = React.lazy(() => import('./views/scraper/scraperGoogle/ScraperGoogle'));
 const ScraperLinkedin = React.lazy(() => import('./views/scraper/scraperLinkedin/ScraperLinkedin'));
 const ScraperInstagram = React.lazy(() => import('./views/scraper/scraperInstagram/ScraperInstagram'));
+const InstagramScrapeDetail = React.lazy(() => import('./views/scraper/scraperInstagram/ScrapeDetail'));
 const SearchScraper = React.lazy(() => import('./views/scraper/scraperGoogle/SearchScraper'));
 const SearchScraperLinkedin = React.lazy(()=> import('./views/scraper/scraperLinkedin/SearchScraperLinkedin'));
 const Scrapers = React.lazy(()=> import('./views/scraper/Scrapers'));
@@ -91,7 +92,8 @@ const routes = [
   { path: '/sistemaLeeds/searchGogle', exact: true, name: 'Search Google', component: SearchScraper},
   { path: '/sistemaLeeds/searchLinkedin', exact: true, name: 'Search Linkedin', component: SearchScraperLinkedin},
   { path: '/sistemaLeeds/scrapers', exact: true, name: 'Scrapers', component: Scrapers},
-  { path: '/instagramscraper', exact: true, name: 'Scraper Instagram', component: ScraperInstagram}
+  { path: '/instagramscraper', exact: true, name: 'Scraper Instagram', component: ScraperInstagram},
+  { path: '/instagramscraper/detail', exact: true, name: 'Instagram Scrape Detail', component: InstagramScrapeDetail}
 ];
 
 export default routes;

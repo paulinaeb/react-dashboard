@@ -34,7 +34,7 @@ const ScraperInstagram = () => {
   const [gridColumnApi, setGridColumnApi] = useState(null);
 
   const [loading, setLoading] = useState(false);
-  const [rowData, setRowData] = useState(null);
+  const [rowData, setRowData] = useState(defaultData);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -59,7 +59,7 @@ const ScraperInstagram = () => {
       return res.data;
     } catch (e) {
       console.log("error en getProfiles", e);
-      setRowData([]);
+      // setRowData([]);
     } finally {
       setLoading(false);
     }
@@ -71,13 +71,17 @@ const ScraperInstagram = () => {
 
   const navigateToScrape = (e) => {
     console.log("row clicked", e);
-    console.log(e.data.id, " ", e.data.scraped_date["$date"]);
-    // history.push("/dashboard");
+    // console.log(e.data.id, " ", e.data.scraped_date["$date"]);
+    // const userId = e.data.id;
+    // const timestamp = e.data.scraped_date["$date"];
+    history.push(`/instagramscraper/detail?userId=44889068058&timestamp=${1617559651727}`);
+    // history.push(`/instagramscraper/detail?userId=${userId}&timestamp=${timestamp}`);
   };
 
   const startScrape = async (e) => {
     let res = null;
     e.preventDefault();
+    e.target.reset();
     try {
       res = await service.startScraper(username, email);
       console.log("response", res);
@@ -210,66 +214,84 @@ export default ScraperInstagram;
 
 const defaultData = [
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "Somosopentech",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "PepitoManolo",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "Platanitomaduro",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "HolaBrenda",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "NoseQueEstoyHaciendo",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "AyudaPorfavo",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "AAAAAA",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "Somosopentech",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
   {
-    fecha: "16/03/2021",
+    scraped_date: {
+      '$date': 123456789
+    },
     username: "Somosopentech",
-    posts: 32,
-    followers: 248,
-    following: 103,
+    post_count: 32,
+    follower_count: 248,
+    following_count: 103,
   },
 ];

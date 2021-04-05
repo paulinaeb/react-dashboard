@@ -8,7 +8,8 @@ const client = axios.create({
 
 const instagramService = {
   getScrapedProfiles: (page, size) => client.get("scraped-profiles"),
-  startScraper: (username, email) => client.post("scrape", {username, email})
+  startScraper: (username, email) => client.post("scrape", {username, email}),
+  getScrapeDetails: (userId, timestamp) => client.get("scrape-info", {userId, timestamp})
 };
 
 export default instagramService;

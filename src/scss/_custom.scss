@@ -11,8 +11,23 @@
   margin-top: 5px !important;
 }
 
+// styles for instagram scraper views
 .instagram-grid {
   .ag-row-hover {
     cursor: pointer;
+  }
+}
+
+.insta-info-card {
+  max-width: 220px;
+  margin-left: auto;
+  margin-right: auto;
+  // followers and following icons
+  div.h1.text-muted.text-right {
+    margin-bottom: 0 !important;
+  }
+  .progress {
+    margin-top: 1.5rem !important;
+    margin-bottom: 0 !important;
   }
 }
