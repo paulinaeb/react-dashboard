@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
 import {
   CCol,
@@ -27,6 +28,7 @@ import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import { AgGridReact, AgGridColumn } from "ag-grid-react";
 
+import * as Actions from 'src/actions/instagramActions';
 import service from "src/services/instagram";
 
 const ScraperInstagram = () => {
@@ -42,6 +44,8 @@ const ScraperInstagram = () => {
   const [modal, setModal] = useState(false);
   const [modalColor, setModalColor] = useState("primary");
   const [modalMessage, setModalMessage] = useState({ title: "", body: "" });
+
+  const dispatch = useDispatch()
 
   const history = useHistory();
 
@@ -72,8 +76,7 @@ const ScraperInstagram = () => {
   const navigateToScrape = (e) => {
     console.log("row clicked", e);
     console.log(e.data.id, " ", e.data.scraped_date["$date"]);
-    const userId = e.data.id;
-    const timestamp = e.data.scraped_date["$date"];
+    dispatch(Actions.selectScrape(e.data));
     history.push({
       pathname: `/instagramscraper/detail`,
       state: e.data,
@@ -112,7 +115,9 @@ const ScraperInstagram = () => {
     <CRow>
       <CCol xs="12">
         <CCard>
-          <CCardHeader>Realizar un nuevo scrape</CCardHeader>
+          <CCardHeader>
+            <h5 className="card-title">Realizar un nuevo scrape</h5>
+          </CCardHeader>
           <CCardBody>
             <CRow>
               <CCol md="4">
@@ -161,17 +166,18 @@ const ScraperInstagram = () => {
           </CCardBody>
         </CCard>
         <CCard>
-          <CCardHeader>Perfiles analizados recientemente</CCardHeader>
+          <CCardHeader>
+            <h5 className="card-title">Perfiles analizados recientemente</h5>
+          </CCardHeader>
           <CCardBody>
             <div
               className="ag-theme-alpine instagram-grid"
-              style={{ height: 420, width: "100%" }}
+              style={{ height: 550, width: "100%" }}
             >
               <AgGridReact
                 rowData={rowData}
-                // rowSelection="multiple"
                 pagination={true}
-                paginationPageSize={5}
+                paginationPageSize={10}
                 onGridReady={onGridReady}
                 onRowClicked={navigateToScrape}
               >

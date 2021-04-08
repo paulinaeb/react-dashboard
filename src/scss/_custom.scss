@@ -31,3 +31,19 @@
     margin-bottom: 0 !important;
   }
 }
+
+.card-title {
+  margin: 0.25rem 0;
+  font-weight: 600;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  .chart-canvas {
+    width: 800px;
+    height: 408px;
+  }
+}

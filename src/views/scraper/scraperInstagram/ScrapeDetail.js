@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation, Link } from "react-router-dom";
 import {
   CCol,
   CRow,
@@ -9,7 +9,7 @@ import {
   CWidgetProgressIcon,
   CWidgetBrand,
 } from "@coreui/react";
-import { CChartDoughnut } from "@coreui/react-chartjs";
+import { CChartPie } from "@coreui/react-chartjs";
 import CIcon from "@coreui/icons-react";
 
 import "ag-grid-enterprise";
@@ -19,7 +19,7 @@ import { AgGridReact, AgGridColumn } from "ag-grid-react";
 
 import service from "src/services/instagram";
 
-const ScraperInstagram = () => {
+const ScrapeDetail = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [rowData, setRowData] = useState(null);
@@ -42,7 +42,12 @@ const ScraperInstagram = () => {
     try {
       let res = await service.getScrapeDetails(id, scraped_date["$date"]);
       console.log("response", res.data);
-      setRowData(res.data);
+      const formattedData = res.data.map((e) => ({
+        ...e,
+        like_percent: e.like_percent.toFixed(3),
+        comment_percent: e.comment_percent.toFixed(3),
+      }));
+      setRowData(formattedData);
     } catch (e) {
       console.log("error en getUsersEngagement\n", e);
       setRowData([]);
@@ -60,7 +65,7 @@ const ScraperInstagram = () => {
         {/* Información del usuario scrapeado */}
         <CCol sm="6" xxl="5">
           <CCard>
-            <CCardHeader>
+            <CCardHeader className="pb-0">
               <CRow>
                 <CCol xs="7">
                   <h2>@{scrapedProfile.username}</h2>
@@ -101,9 +106,14 @@ const ScraperInstagram = () => {
                 <CCol sm="10">
                   <CWidgetBrand
                     color="instagram"
-                    rightHeader={scrapedProfile.total_engagement}
+                    rightHeader={`${scrapedProfile.total_engagement.toFixed(
+                      3
+                    )}%`}
                     rightFooter="ENGAGEMENT"
-                    leftHeader={scrapedProfile.total_likes_count + scrapedProfile.total_comments_count}
+                    leftHeader={
+                      scrapedProfile.total_likes_count +
+                      scrapedProfile.total_comments_count
+                    }
                     leftFooter="INTERACCIONES"
                   >
                     <CIcon name="cib-instagram" height="36" className="my-3" />
@@ -116,27 +126,34 @@ const ScraperInstagram = () => {
         {/* Pie chart */}
         <CCol sm="6" xxl="7">
           <CCard>
-            <CCardHeader>Distribución de interacciones</CCardHeader>
-            <CCardBody style={{ height: "400px" }}>
-              <CChartDoughnut
-                datasets={[
-                  {
-                    backgroundColor: [
-                      // "#41B883",
-                      // "#E46651",
-                      "#00D8FF",
-                      "#DD1B16",
-                    ],
-                    data: [6000, 750],
-                  },
-                ]}
-                labels={["Likes", "Comentarios"]}
-                options={{
-                  tooltips: {
-                    enabled: true,
-                  },
-                }}
-              />
+            <CCardHeader>
+              <h5 className="card-title">Distribución de interacciones</h5>
+            </CCardHeader>
+            <CCardBody className="chart-container">
+              <div className="chart-canvas">
+                <CChartPie
+                  datasets={[
+                    {
+                      backgroundColor: [
+                        // "#41B883",
+                        // "#E46651",
+                        "#00D8FF",
+                        "#DD1B16",
+                      ],
+                      data: [
+                        scrapedProfile.total_likes_count,
+                        scrapedProfile.total_comments_count,
+                      ],
+                    },
+                  ]}
+                  labels={["Likes", "Comentarios"]}
+                  options={{
+                    tooltips: {
+                      enabled: true,
+                    },
+                  }}
+                />
+              </div>
             </CCardBody>
           </CCard>
         </CCol>
@@ -145,36 +162,77 @@ const ScraperInstagram = () => {
       <CRow>
         <CCol xs="12">
           <CCard>
-            <CCardHeader>Engagements de los usuarios</CCardHeader>
+            <CCardHeader>
+              <h5 className="card-title">Engagements de los usuarios</h5>
+            </CCardHeader>
             <CCardBody>
               <div
                 className="ag-theme-alpine"
-                style={{ height: 500, width: "100%" }}
+                style={{ height: 520, width: "100%" }}
               >
                 <AgGridReact
                   rowData={rowData}
-                  // rowSelection="multiple"
                   pagination={true}
                   paginationPageSize={10}
                   onGridReady={onGridReady}
-                  // onRowClicked={navigateToScrape}
+                  frameworkComponents={{
+                    iconComponent: (params) => (
+                      <a
+                        href={`https://www.instagram.com/${params.value}/`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <CIcon
+                          name="cib-instagram"
+                          height="24"
+                          // style={{ textDecoration: "none" }}
+                        />
+                      </a>
+                    ),
+                    userComponent: (params) => (
+                      <Link to="/">{params.value}</Link>
+                    ),
+                  }}
                 >
                   <AgGridColumn
                     field="username"
                     headerName="Usuario"
-                    cellRenderer={(params) =>
-                      `<a href="https://www.instagram.com/${params.value}/"  target="_blank">${params.value}</a>`
-                    }
+                    // cellRenderer={(params) =>
+                    //   `<a href="https://www.instagram.com/${params.value}/"  target="_blank">${params.value}</a>`
+                    // }
+                    cellRenderer="userComponent"
+                    flex={1}
                   />
-                  <AgGridColumn field="like_count" headerName="# de Likes" />
-                  <AgGridColumn field="like_percent" headerName="% de Likes" />
+                  <AgGridColumn
+                    field="like_count"
+                    headerName="# de Likes"
+                    sortable
+                    flex={1}
+                  />
+                  <AgGridColumn
+                    field="like_percent"
+                    headerName="% de Likes"
+                    flex={1}
+                  />
                   <AgGridColumn
                     field="comment_count"
-                    headerName="# de Comments"
+                    headerName="# de Comentarios"
+                    sortable
+                    flex={1}
                   />
                   <AgGridColumn
                     field="comment_percent"
-                    headerName="% de Comments"
+                    headerName="% de Comentarios"
+                    flex={1}
+                  />
+                  <AgGridColumn
+                    field="username"
+                    headerName="Ver Perfil"
+                    cellRenderer="iconComponent"
+                    // cellStyle={{ textAlign: "center" }}
+                    flex={1}
+                    maxWidth={150}
                   />
                 </AgGridReact>
               </div>
@@ -186,7 +244,7 @@ const ScraperInstagram = () => {
   );
 };
 
-export default ScraperInstagram;
+export default ScrapeDetail;
 
 const defaultData = [
   {

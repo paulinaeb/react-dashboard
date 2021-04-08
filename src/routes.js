@@ -93,7 +93,7 @@ const routes = [
   { path: '/sistemaLeeds/searchLinkedin', exact: true, name: 'Search Linkedin', component: SearchScraperLinkedin},
   { path: '/sistemaLeeds/scrapers', exact: true, name: 'Scrapers', component: Scrapers},
   { path: '/instagramscraper', exact: true, name: 'Scraper Instagram', component: ScraperInstagram},
-  { path: '/instagramscraper/detail', exact: true, name: 'Instagram Scrape Detail', component: InstagramScrapeDetail}
+  { path: '/instagramscraper/scrapeSummary', exact: true, name: 'Resumen de Scrape', component: InstagramScrapeDetail}
 ];
 
 export default routes;
