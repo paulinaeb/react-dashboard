@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 import {
   CCol,
   CRow,
@@ -20,16 +20,16 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
-} from "@coreui/react";
-import CIcon from "@coreui/icons-react";
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
 
-import "ag-grid-enterprise";
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { AgGridReact, AgGridColumn } from "ag-grid-react";
+import 'ag-grid-enterprise';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 
 import * as Actions from 'src/actions/instagramActions';
-import service from "src/services/instagram";
+import service from 'src/services/instagram';
 
 const ScraperInstagram = () => {
   const [gridApi, setGridApi] = useState(null);
@@ -38,14 +38,14 @@ const ScraperInstagram = () => {
   const [loading, setLoading] = useState(false);
   const [rowData, setRowData] = useState(null);
 
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
 
   const [modal, setModal] = useState(false);
-  const [modalColor, setModalColor] = useState("primary");
-  const [modalMessage, setModalMessage] = useState({ title: "", body: "" });
+  const [modalColor, setModalColor] = useState('primary');
+  const [modalMessage, setModalMessage] = useState({ title: '', body: '' });
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const history = useHistory();
 
@@ -58,12 +58,12 @@ const ScraperInstagram = () => {
     setLoading(true);
     try {
       let res = await service.getScrapedProfiles(page, size);
-      console.log("response", res.data);
+      console.log('response', res.data);
       setRowData(res.data);
       return res.data;
     } catch (e) {
-      console.log("error en getProfiles", e);
-      // setRowData([]);
+      console.log('error en getProfiles', e);
+      setRowData([]);
     } finally {
       setLoading(false);
     }
@@ -74,13 +74,10 @@ const ScraperInstagram = () => {
   }, []);
 
   const navigateToScrape = (e) => {
-    console.log("row clicked", e);
-    console.log(e.data.id, " ", e.data.scraped_date["$date"]);
+    console.log('row clicked', e);
+    console.log(e.data.id, ' ', e.data.scraped_date['$date']);
     dispatch(Actions.selectScrape(e.data));
-    history.push({
-      pathname: `/instagramscraper/detail`,
-      state: e.data,
-    });
+    history.push('/instagramscraper/scrape-summary');
     // history.push(`/instagramscraper/detail?userId=44889068058&timestamp=${1617559651727}`);
   };
 
@@ -90,22 +87,28 @@ const ScraperInstagram = () => {
     e.target.reset();
     try {
       res = await service.startScraper(username, email);
-      console.log("response", res);
+      // console.log("response", res);
     } catch (e) {
-      console.log("error en startScrape", e);
+      console.log('error en startScrape', e);
+      setModalColor('danger');
+      setModalMessage({
+        title: 'Hubo un error...',
+        body: 'Ha ocurrido un error al inciar el scrape',
+      });
+      setModal(true);
     }
     if (res.status === 202) {
-      setModalColor("success");
+      setModalColor('success');
       setModalMessage({
-        title: "Scrape inciado!",
+        title: 'Scrape inciado!',
         body:
-          "Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado",
+          'Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado',
       });
     } else {
-      setModalColor("danger");
+      setModalColor('danger');
       setModalMessage({
-        title: "Hubo un error...",
-        body: "Ha ocurrido un error al inciar el scrape",
+        title: 'Hubo un error...',
+        body: 'Ha ocurrido un error al inciar el scrape',
       });
     }
     setModal(true);
@@ -172,7 +175,7 @@ const ScraperInstagram = () => {
           <CCardBody>
             <div
               className="ag-theme-alpine instagram-grid"
-              style={{ height: 550, width: "100%" }}
+              style={{ height: 550, width: '100%' }}
             >
               <AgGridReact
                 rowData={rowData}
@@ -187,19 +190,33 @@ const ScraperInstagram = () => {
                   field="scraped_date"
                   checkboxSelection={false}
                   valueGetter={(params) => {
-                    const unixTime = params.data.scraped_date["$date"];
-                    return new Date(unixTime).toLocaleString("es-VE");
+                    const unixTime = params.data.scraped_date['$date'];
+                    return new Date(unixTime).toLocaleString('es-VE');
                   }}
+                  flex={1}
                 />
                 <AgGridColumn
                   field="username"
                   headerName="Usuario"
                   filter
                   sortable
+                  flex={1}
                 />
-                <AgGridColumn field="post_count" headerName="# de Posts" />
-                <AgGridColumn field="follower_count" headerName="Followers" />
-                <AgGridColumn field="following_count" headerName="Following" />
+                <AgGridColumn
+                  field="post_count"
+                  headerName="# de Posts"
+                  flex={1}
+                />
+                <AgGridColumn
+                  field="follower_count"
+                  headerName="Followers"
+                  flex={1}
+                />
+                <AgGridColumn
+                  field="following_count"
+                  headerName="Following"
+                  flex={1}
+                />
               </AgGridReact>
             </div>
           </CCardBody>
@@ -227,7 +244,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "Somosopentech",
+    username: 'Somosopentech',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -236,7 +253,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "PepitoManolo",
+    username: 'PepitoManolo',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -245,7 +262,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "Platanitomaduro",
+    username: 'Platanitomaduro',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -254,7 +271,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "HolaBrenda",
+    username: 'HolaBrenda',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -263,7 +280,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "NoseQueEstoyHaciendo",
+    username: 'NoseQueEstoyHaciendo',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -272,7 +289,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "AyudaPorfavo",
+    username: 'AyudaPorfavo',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -281,7 +298,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "AAAAAA",
+    username: 'AAAAAA',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -290,7 +307,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "Somosopentech",
+    username: 'Somosopentech',
     post_count: 32,
     follower_count: 248,
     following_count: 103,
@@ -299,7 +316,7 @@ const defaultData = [
     scraped_date: {
       $date: 123456789,
     },
-    username: "Somosopentech",
+    username: 'Somosopentech',
     post_count: 32,
     follower_count: 248,
     following_count: 103,

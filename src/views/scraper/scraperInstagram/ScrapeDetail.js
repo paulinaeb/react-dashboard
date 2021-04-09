@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useHistory, useLocation, Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link, useHistory } from 'react-router-dom';
 import {
   CCol,
   CRow,
@@ -8,40 +9,54 @@ import {
   CCardHeader,
   CWidgetProgressIcon,
   CWidgetBrand,
-} from "@coreui/react";
-import { CChartPie } from "@coreui/react-chartjs";
-import CIcon from "@coreui/icons-react";
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+  CButton
+} from '@coreui/react';
+import { CChartPie } from '@coreui/react-chartjs';
+import CIcon from '@coreui/icons-react';
 
-import "ag-grid-enterprise";
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { AgGridReact, AgGridColumn } from "ag-grid-react";
+import 'ag-grid-enterprise';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 
-import service from "src/services/instagram";
+import * as Actions from 'src/actions/instagramActions';
+import service from 'src/services/instagram';
 
 const ScrapeDetail = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [rowData, setRowData] = useState(null);
+  const [errorModal, setErrorModal] = useState(false);
 
   const history = useHistory();
-  const location = useLocation();
+  const dispatch = useDispatch();
+  const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
 
-  const scrapedProfile = location.state;
+  if (!scrapedProfile || !scrapedProfile.scraped_date) {
+    history.push('/instagramscraper');
+    return null;
+  }
+
   const formattedDate = new Date(
-    scrapedProfile.scraped_date["$date"]
-  ).toLocaleString("es-VE");
+    scrapedProfile.scraped_date['$date']
+  ).toLocaleString('es-VE');
 
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
+    getUsersEngagement();
   };
 
   const getUsersEngagement = async () => {
     const { id, scraped_date } = scrapedProfile;
     try {
-      let res = await service.getScrapeDetails(id, scraped_date["$date"]);
-      console.log("response", res.data);
+      let res = await service.getScrapeDetails(id, scraped_date['$date']);
+      // console.log('response', res.data);
       const formattedData = res.data.map((e) => ({
         ...e,
         like_percent: e.like_percent.toFixed(3),
@@ -49,15 +64,15 @@ const ScrapeDetail = () => {
       }));
       setRowData(formattedData);
     } catch (e) {
-      console.log("error en getUsersEngagement\n", e);
-      setRowData([]);
+      console.log('error en getUsersEngagement\n', e);
+      setRowData(null);
+      setErrorModal(!errorModal);
     }
   };
 
-  useEffect(() => {
-    // const searchParams = new URLSearchParams(location.search);
-    getUsersEngagement();
-  }, []);
+  const selectUser = (userData) => {
+    dispatch(Actions.selectUser(userData));
+  };
 
   return (
     <>
@@ -137,8 +152,8 @@ const ScrapeDetail = () => {
                       backgroundColor: [
                         // "#41B883",
                         // "#E46651",
-                        "#00D8FF",
-                        "#DD1B16",
+                        '#00D8FF',
+                        '#DD1B16',
                       ],
                       data: [
                         scrapedProfile.total_likes_count,
@@ -146,7 +161,7 @@ const ScrapeDetail = () => {
                       ],
                     },
                   ]}
-                  labels={["Likes", "Comentarios"]}
+                  labels={['Likes', 'Comentarios']}
                   options={{
                     tooltips: {
                       enabled: true,
@@ -168,7 +183,7 @@ const ScrapeDetail = () => {
             <CCardBody>
               <div
                 className="ag-theme-alpine"
-                style={{ height: 520, width: "100%" }}
+                style={{ height: 520, width: '100%' }}
               >
                 <AgGridReact
                   rowData={rowData}
@@ -181,26 +196,24 @@ const ScrapeDetail = () => {
                         href={`https://www.instagram.com/${params.value}/`}
                         target="_blank"
                         rel="noreferrer"
-                        style={{ textDecoration: "none", color: "inherit" }}
+                        style={{ textDecoration: 'none', color: 'inherit' }}
                       >
-                        <CIcon
-                          name="cib-instagram"
-                          height="24"
-                          // style={{ textDecoration: "none" }}
-                        />
+                        <CIcon name="cib-instagram" height="24" />
                       </a>
                     ),
                     userComponent: (params) => (
-                      <Link to="/">{params.value}</Link>
+                      <Link
+                        to="/instagramscraper/scrape-summary/user-detail"
+                        onClick={() => selectUser(params.data)}
+                      >
+                        {params.value}
+                      </Link>
                     ),
                   }}
                 >
                   <AgGridColumn
                     field="username"
                     headerName="Usuario"
-                    // cellRenderer={(params) =>
-                    //   `<a href="https://www.instagram.com/${params.value}/"  target="_blank">${params.value}</a>`
-                    // }
                     cellRenderer="userComponent"
                     flex={1}
                   />
@@ -230,12 +243,26 @@ const ScrapeDetail = () => {
                     field="username"
                     headerName="Ver Perfil"
                     cellRenderer="iconComponent"
-                    // cellStyle={{ textAlign: "center" }}
                     flex={1}
                     maxWidth={150}
                   />
                 </AgGridReact>
               </div>
+              <CModal
+                show={errorModal}
+                onClose={() => setErrorModal(!errorModal)}
+                color="danger"
+              >
+                <CModalHeader closeButton>
+                  <CModalTitle>Hubo un error...</CModalTitle>
+                </CModalHeader>
+                <CModalBody>Ha ocurrido un error obteniendo la data</CModalBody>
+                <CModalFooter>
+                  <CButton color="danger" onClick={() => setErrorModal(!errorModal)}>
+                    Cerrar
+                  </CButton>
+                </CModalFooter>
+              </CModal>
             </CCardBody>
           </CCard>
         </CCol>
@@ -245,69 +272,3 @@ const ScrapeDetail = () => {
 };
 
 export default ScrapeDetail;
-
-const defaultData = [
-  {
-    fecha: "16/03/2021",
-    username: "Somosopentech",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "PepitoManolo",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "Platanitomaduro",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "HolaBrenda",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "NoseQueEstoyHaciendo",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "AyudaPorfavo",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "AAAAAA",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "Somosopentech",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-  {
-    fecha: "16/03/2021",
-    username: "Somosopentech",
-    posts: 32,
-    followers: 248,
-    following: 103,
-  },
-];
