@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import {
   CCol,
   CRow,
@@ -14,7 +14,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CButton
+  CButton,
 } from '@coreui/react';
 import { CChartPie } from '@coreui/react-chartjs';
 import CIcon from '@coreui/icons-react';
@@ -31,48 +31,90 @@ const ScrapeDetail = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [rowData, setRowData] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortedColumn, setSortedColum] = useState({ field: null, sort: null });
   const [errorModal, setErrorModal] = useState(false);
 
-  const history = useHistory();
   const dispatch = useDispatch();
   const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
 
-  if (!scrapedProfile || !scrapedProfile.scraped_date) {
-    history.push('/instagramscraper');
-    return null;
-  }
-
-  const formattedDate = new Date(
-    scrapedProfile.scraped_date['$date']
-  ).toLocaleString('es-VE');
+  const formattedDate =
+    scrapedProfile.scraped_date &&
+    new Date(scrapedProfile.scraped_date['$date']).toLocaleString('es-VE');
 
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
-    getUsersEngagement();
   };
 
-  const getUsersEngagement = async () => {
-    const { id, scraped_date } = scrapedProfile;
-    try {
-      let res = await service.getScrapeDetails(id, scraped_date['$date']);
-      // console.log('response', res.data);
-      const formattedData = res.data.map((e) => ({
-        ...e,
-        like_percent: e.like_percent.toFixed(3),
-        comment_percent: e.comment_percent.toFixed(3),
-      }));
-      setRowData(formattedData);
-    } catch (e) {
-      console.log('error en getUsersEngagement\n', e);
-      setRowData(null);
-      setErrorModal(!errorModal);
-    }
-  };
+  useEffect(() => {
+    const updateGrid = async () => {
+      const { id, scraped_date } = scrapedProfile;
+      try {
+        let res = await service.getScrapeDetails2(
+          id,
+          scraped_date['$date'],
+          page,
+          pageSize,
+          sortedColumn.field,
+          sortedColumn.sort
+        );
+        // console.log('response', res.data);
+        const formattedData = res.data.rows.map((e) => ({
+          ...e,
+          like_percent: e.like_percent.toFixed(3),
+          comment_percent: e.comment_percent.toFixed(3),
+        }));
+        setRowData(formattedData);
+        setTotalPages(Math.ceil(res.data.count / pageSize));
+      } catch (e) {
+        console.log('error en getUsersEngagement\n', e);
+        setRowData(null);
+        setErrorModal((showModal) => !showModal);
+      }
+    };
+    updateGrid();
+  }, [page, pageSize, scrapedProfile, sortedColumn]);
 
   const selectUser = (userData) => {
     dispatch(Actions.selectUser(userData));
   };
+
+  const onBtFirst = () => {
+    setPage(1);
+  };
+
+  const onBtPrevious = () => {
+    setPage(page - 1 > 0 ? page - 1 : 1);
+  };
+
+  const onBtNext = () => {
+    setPage(page + 1 < totalPages ? page + 1 : totalPages);
+  };
+
+  const onBtLast = () => {
+    setPage(totalPages);
+  };
+
+  const onSortChanged = (event) => {
+    if (!gridColumnApi) return;
+    const toggledColumn = gridColumnApi
+      .getColumnState()
+      .find((c) => c.sort !== null);
+
+    if (toggledColumn) {
+      const sort = toggledColumn.sort === 'asc' ? 1 : -1;
+      setSortedColum({ field: toggledColumn.colId, sort });
+    } else {
+      setSortedColum({ field: null, sort: null });
+    }
+  };
+
+  if (!scrapedProfile || !scrapedProfile.scraped_date) {
+    return <Redirect to="/instagramscraper" />;
+  }
 
   return (
     <>
@@ -187,9 +229,10 @@ const ScrapeDetail = () => {
               >
                 <AgGridReact
                   rowData={rowData}
-                  pagination={true}
+                  pagination={false}
                   paginationPageSize={10}
                   onGridReady={onGridReady}
+                  onSortChanged={onSortChanged}
                   frameworkComponents={{
                     iconComponent: (params) => (
                       <a
@@ -248,6 +291,45 @@ const ScrapeDetail = () => {
                   />
                 </AgGridReact>
               </div>
+              <div style={styles.paginationBox}>
+                <button
+                  style={styles.button}
+                  onClick={onBtFirst}
+                  disabled={page === 1}
+                >
+                  <CIcon name="cil-chevron-double-left" height="20" />
+                </button>
+
+                <button
+                  style={{ ...styles.button }}
+                  onClick={onBtPrevious}
+                  disabled={page === 1}
+                >
+                  <CIcon name="cil-chevron-left" height="20" />
+                </button>
+
+                {true && (
+                  <div style={{ fontWeight: 'bold', margin: '0px 15px' }}>
+                    {page} de {totalPages}
+                  </div>
+                )}
+
+                <button
+                  style={styles.button}
+                  onClick={onBtNext}
+                  disabled={page === totalPages}
+                >
+                  <CIcon name="cil-chevron-right" height="20" />
+                </button>
+
+                <button
+                  style={styles.button}
+                  onClick={onBtLast}
+                  disabled={page === totalPages}
+                >
+                  <CIcon name="cil-chevron-double-right" height="23" />
+                </button>
+              </div>
               <CModal
                 show={errorModal}
                 onClose={() => setErrorModal(!errorModal)}
@@ -258,7 +340,10 @@ const ScrapeDetail = () => {
                 </CModalHeader>
                 <CModalBody>Ha ocurrido un error obteniendo la data</CModalBody>
                 <CModalFooter>
-                  <CButton color="danger" onClick={() => setErrorModal(!errorModal)}>
+                  <CButton
+                    color="danger"
+                    onClick={() => setErrorModal(!errorModal)}
+                  >
                     Cerrar
                   </CButton>
                 </CModalFooter>
@@ -270,5 +355,25 @@ const ScrapeDetail = () => {
     </>
   );
 };
-
+const styles = {
+  button: {
+    background: 'transparent',
+    boxShadow: '0px 0px 0px transparent',
+    border: '0px solid transparent',
+    textShadow: '0px 0px 0px transparent',
+  },
+  paginationBox: {
+    border: '1px solid #babfc7',
+    borderTop: 'none',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingRight: '20px',
+  },
+  /*paginationIcons:{
+		width:18,
+		height:18
+	},*/
+};
 export default ScrapeDetail;
