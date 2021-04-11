@@ -40,6 +40,8 @@ const ScraperInstagram = () => {
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [scrapingUser, setScrapingUser] = useState('');
+  const [scrapingPass, setScrapingPass] = useState('');
 
   const [modal, setModal] = useState(false);
   const [modalColor, setModalColor] = useState('primary');
@@ -86,8 +88,12 @@ const ScraperInstagram = () => {
     e.preventDefault();
     e.target.reset();
     try {
-      res = await service.startScraper(username, email);
+      res = await service.startScraper(username, email, scrapingUser, scrapingPass);
       // console.log("response", res);
+      setScrapingUser('')
+      setScrapingPass('')
+      setUsername('')
+      setEmail('')
     } catch (e) {
       console.log('error en startScrape', e);
       setModalColor('danger');
@@ -122,9 +128,10 @@ const ScraperInstagram = () => {
             <h5 className="card-title">Realizar un nuevo scrape</h5>
           </CCardHeader>
           <CCardBody>
-            <CRow>
-              <CCol md="4">
-                <CForm id="scrape-form" onSubmit={startScrape}>
+            <CForm id="scrape-form" onSubmit={startScrape}>
+              <CRow>
+                {/* Username y E-mail */}
+                <CCol md="4">
                   <CFormGroup>
                     <CLabel htmlFor="username">
                       Nombre de usuario a analizar
@@ -160,12 +167,48 @@ const ScraperInstagram = () => {
                       />
                     </CInputGroup>
                   </CFormGroup>
-                  <CButton type="submit" size="sm" color="success">
+                  <CButton type="submit" size="sm" color="success" disabled={!username || !email}>
                     <CIcon name="cil-check" /> Iniciar Scrape
                   </CButton>
-                </CForm>
-              </CCol>
-            </CRow>
+                </CCol>
+                {/* Scraping user y scraping password */}
+                <CCol md="4">
+                  <CFormGroup>
+                    <CLabel htmlFor="scrapingUser">
+                      Usuario fake para realizar scrape
+                    </CLabel>
+                    <CInputGroup className="input-prepend">
+                      <CInputGroupPrepend>
+                        <CInputGroupText>@</CInputGroupText>
+                      </CInputGroupPrepend>
+                      <CInput
+                        name="scrapingUser"
+                        placeholder="Dejar en blanco para predeterminado"
+                        onChange={(e) => setScrapingUser(e.target.value)}
+                      />
+                    </CInputGroup>
+                  </CFormGroup>
+                  <CFormGroup>
+                    <CLabel htmlFor="scrapingPass">
+                      Contraseña de la cuenta fake
+                    </CLabel>
+                    <CInputGroup>
+                      <CInputGroupPrepend>
+                        <CInputGroupText>
+                          <CIcon name="cil-lock-locked" />
+                        </CInputGroupText>
+                      </CInputGroupPrepend>
+                      <CInput
+                        // type="email"
+                        name="scrapingPass"
+                        placeholder="Dejar en blanco para predeterminado"
+                        onChange={(e) => setScrapingPass(e.target.value)}
+                      />
+                    </CInputGroup>
+                  </CFormGroup>
+                </CCol>
+              </CRow>
+            </CForm>
           </CCardBody>
         </CCard>
         <CCard>

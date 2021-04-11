@@ -9,7 +9,8 @@ const client = axios.create({
 const instagramService = {
   getScrapedProfiles: (page, size) => client.get('scraped-profiles'),
 
-  startScraper: (username, email) => client.post('scrape', { username, email }),
+  startScraper: (username, email, scrapingUser, scrapingPass) =>
+    client.post('scrape', { username, email, scrapingUser, scrapingPass }),
 
   getScrapeDetails: (userId, timestamp) =>
     client.get('scrape-info', { params: { userId, timestamp } }),
@@ -24,7 +25,15 @@ const instagramService = {
       params: { username, profileId, timestamp },
     }),
 
-  getUserDetails2: (username, profileId, timestamp, page, pageSize, sortBy, order) =>
+  getUserDetails2: (
+    username,
+    profileId,
+    timestamp,
+    page,
+    pageSize,
+    sortBy,
+    order
+  ) =>
     client.get('scrape-info/liked-posts', {
       params: { username, profileId, timestamp, page, pageSize, sortBy, order },
     }),
