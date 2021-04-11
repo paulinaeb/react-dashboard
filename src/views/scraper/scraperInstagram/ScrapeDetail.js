@@ -291,6 +291,7 @@ const ScrapeDetail = () => {
                     field="like_count"
                     headerName="# de Likes"
                     sortable
+                    sortingOrder={['asc', null]}
                     flex={1}
                   />
                   <AgGridColumn

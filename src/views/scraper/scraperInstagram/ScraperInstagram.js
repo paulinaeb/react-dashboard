@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import {
@@ -28,6 +28,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 
+import PaginationBox from 'src/reusable/PaginationBox';
 import * as Actions from 'src/actions/instagramActions';
 import service from 'src/services/instagram';
 
@@ -47,8 +48,11 @@ const ScraperInstagram = () => {
   const [modalColor, setModalColor] = useState('primary');
   const [modalMessage, setModalMessage] = useState({ title: '', body: '' });
 
-  const dispatch = useDispatch();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(0);
 
+  const dispatch = useDispatch();
   const history = useHistory();
 
   const onGridReady = (params) => {
@@ -56,31 +60,38 @@ const ScraperInstagram = () => {
     setGridColumnApi(params.columnApi);
   };
 
-  const getProfiles = async (page = 0, size = 10) => {
-    setLoading(true);
-    try {
-      let res = await service.getScrapedProfiles(page, size);
-      console.log('response', res.data);
-      setRowData(res.data);
-      return res.data;
-    } catch (e) {
-      console.log('error en getProfiles', e);
-      setRowData([]);
-    } finally {
-      setLoading(false);
-    }
+  const toggleModal = (color, message) => {
+    setModalColor(color);
+    const title = color === 'success' ? 'Scrape iniciado!' : 'Hubo un error...';
+    setModalMessage({ title, body: message });
+    setModal(true);
   };
 
   useEffect(() => {
+    const getProfiles = async () => {
+      setLoading(true);
+      try {
+        let res = await service.getScrapedProfiles(page, pageSize);
+        setRowData(res.data.rows);
+        setTotalPages(Math.ceil(res.data.count / pageSize));
+        // console.log('response', res.data);
+        return res.data;
+      } catch (e) {
+        console.log('error en getProfiles', e);
+        setRowData(null);
+        toggleModal('danger', 'Ha ocurrido un error obteniendo la data');
+      } finally {
+        setLoading(false);
+      }
+    };
     getProfiles();
-  }, []);
+  }, [page, pageSize]);
 
   const navigateToScrape = (e) => {
     console.log('row clicked', e);
     console.log(e.data.id, ' ', e.data.scraped_date['$date']);
     dispatch(Actions.selectScrape(e.data));
     history.push('/instagramscraper/scrape-summary');
-    // history.push(`/instagramscraper/detail?userId=44889068058&timestamp=${1617559651727}`);
   };
 
   const startScrape = async (e) => {
@@ -88,36 +99,63 @@ const ScraperInstagram = () => {
     e.preventDefault();
     e.target.reset();
     try {
-      res = await service.startScraper(username, email, scrapingUser, scrapingPass);
+      res = await service.startScraper(
+        username,
+        email,
+        scrapingUser,
+        scrapingPass
+      );
       // console.log("response", res);
-      setScrapingUser('')
-      setScrapingPass('')
-      setUsername('')
-      setEmail('')
+      setScrapingUser('');
+      setScrapingPass('');
+      setUsername('');
+      setEmail('');
     } catch (e) {
       console.log('error en startScrape', e);
-      setModalColor('danger');
-      setModalMessage({
-        title: 'Hubo un error...',
-        body: 'Ha ocurrido un error al inciar el scrape',
-      });
-      setModal(true);
+      toggleModal('danger', 'Ha ocurrido un error al inciar el scrape');
     }
     if (res.status === 202) {
-      setModalColor('success');
-      setModalMessage({
-        title: 'Scrape inciado!',
-        body:
-          'Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado',
-      });
+      toggleModal(
+        'success',
+        'Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado'
+      );
     } else {
-      setModalColor('danger');
-      setModalMessage({
-        title: 'Hubo un error...',
-        body: 'Ha ocurrido un error al inciar el scrape',
-      });
+      toggleModal('danger', 'Ha ocurrido un error al inciar el scrape');
     }
-    setModal(true);
+  };
+
+  const exportGrid = async () => {
+    setLoading(true);
+    try {
+      let response = await service.exportScrapesToCsv();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'scrapes.csv');
+      document.body.appendChild(link);
+      link.click();
+    } catch (e) {
+      console.log('error en export\n', e);
+      toggleModal('danger', 'Ha ocurrido un error al exportar la data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onBtFirst = () => {
+    setPage(1);
+  };
+
+  const onBtPrevious = () => {
+    setPage(page - 1 > 0 ? page - 1 : 1);
+  };
+
+  const onBtNext = () => {
+    setPage(page + 1 <= totalPages ? page + 1 : totalPages);
+  };
+
+  const onBtLast = () => {
+    setPage(totalPages);
   };
 
   return (
@@ -167,7 +205,12 @@ const ScraperInstagram = () => {
                       />
                     </CInputGroup>
                   </CFormGroup>
-                  <CButton type="submit" size="sm" color="success" disabled={!username || !email}>
+                  <CButton
+                    type="submit"
+                    size="sm"
+                    color="success"
+                    disabled={!username || !email}
+                  >
                     <CIcon name="cil-check" /> Iniciar Scrape
                   </CButton>
                 </CCol>
@@ -199,7 +242,6 @@ const ScraperInstagram = () => {
                         </CInputGroupText>
                       </CInputGroupPrepend>
                       <CInput
-                        // type="email"
                         name="scrapingPass"
                         placeholder="Dejar en blanco para predeterminado"
                         onChange={(e) => setScrapingPass(e.target.value)}
@@ -222,13 +264,12 @@ const ScraperInstagram = () => {
             >
               <AgGridReact
                 rowData={rowData}
-                pagination={true}
-                paginationPageSize={10}
+                pagination={false}
+                paginationPageSize={20}
                 onGridReady={onGridReady}
                 onRowClicked={navigateToScrape}
               >
                 <AgGridColumn
-                  sortable
                   headerName="Fecha"
                   field="scraped_date"
                   checkboxSelection={false}
@@ -238,12 +279,10 @@ const ScraperInstagram = () => {
                   }}
                   flex={1}
                 />
-                <AgGridColumn
-                  field="username"
+                <AgGridColumn 
+                  field="username" 
                   headerName="Usuario"
-                  filter
-                  sortable
-                  flex={1}
+                  flex={1} 
                 />
                 <AgGridColumn
                   field="post_count"
@@ -262,6 +301,17 @@ const ScraperInstagram = () => {
                 />
               </AgGridReact>
             </div>
+            <PaginationBox
+              loading={loading}
+              rowData={rowData !== null}
+              page={page}
+              totalPages={totalPages}
+              exportGrid={exportGrid}
+              onBtFirst={onBtFirst}
+              onBtPrevious={onBtPrevious}
+              onBtNext={onBtNext}
+              onBtLast={onBtLast}
+            />
           </CCardBody>
         </CCard>
       </CCol>
@@ -281,87 +331,3 @@ const ScraperInstagram = () => {
 };
 
 export default ScraperInstagram;
-
-const defaultData = [
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'Somosopentech',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'PepitoManolo',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'Platanitomaduro',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'HolaBrenda',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'NoseQueEstoyHaciendo',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'AyudaPorfavo',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'AAAAAA',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'Somosopentech',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-  {
-    scraped_date: {
-      $date: 123456789,
-    },
-    username: 'Somosopentech',
-    post_count: 32,
-    follower_count: 248,
-    following_count: 103,
-  },
-];

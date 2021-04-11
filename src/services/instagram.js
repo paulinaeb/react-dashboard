@@ -7,7 +7,8 @@ const client = axios.create({
 });
 
 const instagramService = {
-  getScrapedProfiles: (page, size) => client.get('scraped-profiles'),
+  getScrapedProfiles: (page, size) =>
+    client.get('scraped-profiles', { params: { page, size } }),
 
   startScraper: (username, email, scrapingUser, scrapingPass) =>
     client.post('scrape', { username, email, scrapingUser, scrapingPass }),
@@ -37,6 +38,9 @@ const instagramService = {
     client.get('scrape-info/liked-posts', {
       params: { username, profileId, timestamp, page, pageSize, sortBy, order },
     }),
+
+  exportScrapesToCsv: () =>
+    client.get('export-csv-scrapes', { responseType: 'blob' }),
 
   exportEngagementsToCsv: (userId, timestamp) =>
     client.get('export-csv-engagements', {
