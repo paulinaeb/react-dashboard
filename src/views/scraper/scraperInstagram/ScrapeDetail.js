@@ -32,12 +32,15 @@ const ScrapeDetail = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [rowData, setRowData] = useState(null);
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(0);
   const [sortedColumn, setSortedColum] = useState({ field: null, sort: null });
+
   const [errorModal, setErrorModal] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const dispatch = useDispatch();
   const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
 
@@ -120,7 +123,7 @@ const ScrapeDetail = () => {
     const { id, scraped_date } = scrapedProfile;
     setLoading(true);
     try {
-      let response = await service.exportToCsv(id, scraped_date['$date']);
+      let response = await service.exportEngagementsToCsv(id, scraped_date['$date']);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -253,9 +256,10 @@ const ScrapeDetail = () => {
                 <AgGridReact
                   rowData={rowData}
                   pagination={false}
-                  paginationPageSize={10}
+                  paginationPageSize={20}
                   onGridReady={onGridReady}
                   onSortChanged={onSortChanged}
+                  sortingOrder={['desc', 'asc', null]}
                   frameworkComponents={{
                     iconComponent: (params) => (
                       <a

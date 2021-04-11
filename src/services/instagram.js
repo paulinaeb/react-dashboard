@@ -24,9 +24,20 @@ const instagramService = {
       params: { username, profileId, timestamp },
     }),
 
-  exportToCsv: (userId, timestamp) =>
-    client.get('export-csv', {
+  getUserDetails2: (username, profileId, timestamp, page, pageSize, sortBy, order) =>
+    client.get('scrape-info/liked-posts', {
+      params: { username, profileId, timestamp, page, pageSize, sortBy, order },
+    }),
+
+  exportEngagementsToCsv: (userId, timestamp) =>
+    client.get('export-csv-engagements', {
       params: { userId, timestamp },
+      responseType: 'blob',
+    }),
+
+  exportInteractedPostsToCsv: (username, profileId, timestamp) =>
+    client.get('export-csv-posts', {
+      params: { username, profileId, timestamp },
       responseType: 'blob',
     }),
 };

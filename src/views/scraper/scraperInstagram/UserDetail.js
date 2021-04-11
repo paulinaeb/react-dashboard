@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import {
   CCol,
   CRow,
@@ -11,7 +12,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CButton
+  CButton,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 
@@ -20,42 +21,116 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 
+import PaginationBox from 'src/reusable/PaginationBox';
 import service from 'src/services/instagram';
 
-const ScrapeDetail = () => {
+const UserDetail = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [rowData, setRowData] = useState(null);
   const [errorModal, setErrorModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortedColumn, setSortedColum] = useState({ field: null, sort: null });
 
   const selectedUser = useSelector((state) => state.instagram.selectedUser);
 
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
-    getUserInteractedPosts();
   };
 
-  const getUserInteractedPosts = async () => {
+  useEffect(() => {
+    const updateGrid = async () => {
+      const { username, date, profile_id } = selectedUser;
+      setLoading(true);
+      try {
+        let res = await service.getUserDetails2(
+          username,
+          profile_id,
+          date['$date'],
+          page,
+          pageSize,
+          sortedColumn.field,
+          sortedColumn.sort
+        );
+        // console.log('response', res.data);
+        const formattedData = res.data.rows.map((e) => ({
+          ...e,
+          engagement: e.engagement.toFixed(3),
+        }));
+        setRowData(formattedData);
+        setTotalPages(Math.ceil(res.data.count / pageSize));
+      } catch (e) {
+        console.log('error en getUsersEngagement\n', e);
+        setRowData(null);
+        setErrorModal((showModal) => !showModal);
+      } finally {
+        setLoading(false);
+      }
+    };
+    updateGrid();
+  }, [page, pageSize, sortedColumn, selectedUser]);
+
+  const onBtFirst = () => {
+    setPage(1);
+  };
+
+  const onBtPrevious = () => {
+    setPage(page - 1 > 0 ? page - 1 : 1);
+  };
+
+  const onBtNext = () => {
+    setPage(page + 1 <= totalPages ? page + 1 : totalPages);
+  };
+
+  const onBtLast = () => {
+    setPage(totalPages);
+  };
+
+  const onSortChanged = (event) => {
+    if (!gridColumnApi) return;
+    const toggledColumn = gridColumnApi
+      .getColumnState()
+      .find((c) => c.sort !== null);
+
+    if (toggledColumn) {
+      const sort = toggledColumn.sort === 'asc' ? 1 : -1;
+      setSortedColum({ field: toggledColumn.colId, sort });
+    } else {
+      setSortedColum({ field: null, sort: null });
+    }
+  };
+
+  const exportGrid = async () => {
     const { username, date, profile_id } = selectedUser;
+    setLoading(true);
     try {
-      let res = await service.getUserDetails(
+      let response = await service.exportInteractedPostsToCsv(
         username,
         profile_id,
         date['$date']
       );
-      // console.log('response', res.data);
-      const formattedData = res.data.map((e) => ({
-        ...e,
-        engagement: e.engagement.toFixed(3),
-      }));
-      setRowData(formattedData);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'user_interacted_posts.csv');
+      document.body.appendChild(link);
+      link.click();
     } catch (e) {
-      console.log('error en getUserInteractedPosts\n', e);
-      setRowData(null);
+      console.log('error en export\n', e);
       setErrorModal(!errorModal);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (!selectedUser || !selectedUser.date) {
+    return <Redirect to="/instagramscraper" />;
+  }
 
   return (
     <>
@@ -75,9 +150,11 @@ const ScrapeDetail = () => {
               >
                 <AgGridReact
                   rowData={rowData}
-                  pagination={true}
+                  pagination={false}
                   paginationPageSize={20}
                   onGridReady={onGridReady}
+                  onSortChanged={onSortChanged}
+                  sortingOrder={['desc', 'asc', null]}
                   frameworkComponents={{
                     iconComponent: (params) => (
                       <a
@@ -102,7 +179,6 @@ const ScrapeDetail = () => {
                     headerName="Post"
                     cellRenderer="iconComponent"
                     flex={1}
-                    // maxWidth={150}
                   />
                   <AgGridColumn
                     field="likes_count"
@@ -128,7 +204,6 @@ const ScrapeDetail = () => {
                     sortable
                     cellRenderer="checkComponent"
                     flex={1}
-                    // maxWidth={150}
                   />
                   <AgGridColumn
                     field="has_commented"
@@ -136,10 +211,20 @@ const ScrapeDetail = () => {
                     cellRenderer="checkComponent"
                     sortable
                     flex={1}
-                    // maxWidth={150}
                   />
                 </AgGridReact>
               </div>
+              <PaginationBox
+                loading={loading}
+                rowData={rowData !== null}
+                page={page}
+                totalPages={totalPages}
+                exportGrid={exportGrid}
+                onBtFirst={onBtFirst}
+                onBtPrevious={onBtPrevious}
+                onBtNext={onBtNext}
+                onBtLast={onBtLast}
+              />
               <CModal
                 show={errorModal}
                 onClose={() => setErrorModal(!errorModal)}
@@ -150,7 +235,10 @@ const ScrapeDetail = () => {
                 </CModalHeader>
                 <CModalBody>Ha ocurrido un error obteniendo la data</CModalBody>
                 <CModalFooter>
-                  <CButton color="danger" onClick={() => setErrorModal(!errorModal)}>
+                  <CButton
+                    color="danger"
+                    onClick={() => setErrorModal(!errorModal)}
+                  >
                     Cerrar
                   </CButton>
                 </CModalFooter>
@@ -163,4 +251,4 @@ const ScrapeDetail = () => {
   );
 };
 
-export default ScrapeDetail;
+export default UserDetail;
