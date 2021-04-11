@@ -76,7 +76,7 @@ const ScrapeDetail = () => {
                 <AgGridReact
                   rowData={rowData}
                   pagination={true}
-                  paginationPageSize={10}
+                  paginationPageSize={20}
                   onGridReady={onGridReady}
                   frameworkComponents={{
                     iconComponent: (params) => (

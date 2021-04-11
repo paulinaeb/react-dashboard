@@ -24,6 +24,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 
+import PaginationBox from 'src/reusable/PaginationBox';
 import * as Actions from 'src/actions/instagramActions';
 import service from 'src/services/instagram';
 
@@ -36,7 +37,7 @@ const ScrapeDetail = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [sortedColumn, setSortedColum] = useState({ field: null, sort: null });
   const [errorModal, setErrorModal] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
 
@@ -52,6 +53,7 @@ const ScrapeDetail = () => {
   useEffect(() => {
     const updateGrid = async () => {
       const { id, scraped_date } = scrapedProfile;
+      setLoading(true);
       try {
         let res = await service.getScrapeDetails2(
           id,
@@ -73,6 +75,8 @@ const ScrapeDetail = () => {
         console.log('error en getUsersEngagement\n', e);
         setRowData(null);
         setErrorModal((showModal) => !showModal);
+      } finally {
+        setLoading(false);
       }
     };
     updateGrid();
@@ -91,7 +95,7 @@ const ScrapeDetail = () => {
   };
 
   const onBtNext = () => {
-    setPage(page + 1 < totalPages ? page + 1 : totalPages);
+    setPage(page + 1 <= totalPages ? page + 1 : totalPages);
   };
 
   const onBtLast = () => {
@@ -109,6 +113,25 @@ const ScrapeDetail = () => {
       setSortedColum({ field: toggledColumn.colId, sort });
     } else {
       setSortedColum({ field: null, sort: null });
+    }
+  };
+
+  const exportGrid = async () => {
+    const { id, scraped_date } = scrapedProfile;
+    setLoading(true);
+    try {
+      let response = await service.exportToCsv(id, scraped_date['$date']);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'user_engagement_export.csv'); //or any other extension
+      document.body.appendChild(link);
+      link.click();
+    } catch (e) {
+      console.log('error en export\n', e);
+      setErrorModal((showModal) => !showModal);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,7 +160,7 @@ const ScrapeDetail = () => {
                 <CCol sm="6" className="ta-center">
                   <CWidgetProgressIcon
                     header={scrapedProfile.follower_count}
-                    text="Followers"
+                    text="Seguidores"
                     color="gradient-info"
                     value={100}
                     className="insta-info-card"
@@ -149,7 +172,7 @@ const ScrapeDetail = () => {
                 <CCol sm="6">
                   <CWidgetProgressIcon
                     header={scrapedProfile.following_count}
-                    text="Following"
+                    text="Siguiendo"
                     color="gradient-success"
                     value={100}
                     className="insta-info-card"
@@ -291,45 +314,17 @@ const ScrapeDetail = () => {
                   />
                 </AgGridReact>
               </div>
-              <div style={styles.paginationBox}>
-                <button
-                  style={styles.button}
-                  onClick={onBtFirst}
-                  disabled={page === 1}
-                >
-                  <CIcon name="cil-chevron-double-left" height="20" />
-                </button>
-
-                <button
-                  style={{ ...styles.button }}
-                  onClick={onBtPrevious}
-                  disabled={page === 1}
-                >
-                  <CIcon name="cil-chevron-left" height="20" />
-                </button>
-
-                {true && (
-                  <div style={{ fontWeight: 'bold', margin: '0px 15px' }}>
-                    {page} de {totalPages}
-                  </div>
-                )}
-
-                <button
-                  style={styles.button}
-                  onClick={onBtNext}
-                  disabled={page === totalPages}
-                >
-                  <CIcon name="cil-chevron-right" height="20" />
-                </button>
-
-                <button
-                  style={styles.button}
-                  onClick={onBtLast}
-                  disabled={page === totalPages}
-                >
-                  <CIcon name="cil-chevron-double-right" height="23" />
-                </button>
-              </div>
+              <PaginationBox
+                loading={loading}
+                rowData={rowData !== null}
+                page={page}
+                totalPages={totalPages}
+                exportGrid={exportGrid}
+                onBtFirst={onBtFirst}
+                onBtPrevious={onBtPrevious}
+                onBtNext={onBtNext}
+                onBtLast={onBtLast}
+              />
               <CModal
                 show={errorModal}
                 onClose={() => setErrorModal(!errorModal)}
@@ -355,25 +350,5 @@ const ScrapeDetail = () => {
     </>
   );
 };
-const styles = {
-  button: {
-    background: 'transparent',
-    boxShadow: '0px 0px 0px transparent',
-    border: '0px solid transparent',
-    textShadow: '0px 0px 0px transparent',
-  },
-  paginationBox: {
-    border: '1px solid #babfc7',
-    borderTop: 'none',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    paddingRight: '20px',
-  },
-  /*paginationIcons:{
-		width:18,
-		height:18
-	},*/
-};
+
 export default ScrapeDetail;

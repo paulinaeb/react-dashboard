@@ -23,6 +23,12 @@ const instagramService = {
     client.get('scrape-info/liked-posts', {
       params: { username, profileId, timestamp },
     }),
+
+  exportToCsv: (userId, timestamp) =>
+    client.get('export-csv', {
+      params: { userId, timestamp },
+      responseType: 'blob',
+    }),
 };
 
 export default instagramService;
