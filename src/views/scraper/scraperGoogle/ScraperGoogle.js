@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useRef } from 'react'
 import * as XLSX from 'xlsx'
 import { useHistory , withRouter } from 'react-router-dom';
 import {
@@ -19,6 +19,8 @@ import googleDataServices from '../../../services/googleServices'
 
 const ScraperGoogle = (props) => {
 	let history = useHistory();
+	const tagInput = useRef();
+
 	const handleInputChange = (event) => {
 	    const target = event.target
 	    const name = target.name
@@ -46,62 +48,57 @@ const ScraperGoogle = (props) => {
 	    }
 	  } 
 
-
+	const [tags, setTags] = React.useState([]);
 	const defaultState = {
 	  nombre: ""	  
 	};
-	
-	let [contador,setContador] = useState(0);
 
-	const [rows, setRows] = useState([defaultState]);
-	const handleOnChange = (index, name, value) => {
-    	const copyRows = [...rows];
-    	copyRows[index] = {
-      		...copyRows[index],
-      		[name]: value
-    	};
-    	setRows(copyRows);
-  	};
+	const removeTag = (i) => {
+	    const newTags = [ ...tags ];
+	    newTags.splice(i, 1);
 
-  	const handleOnAdd = () => {
-  		setContador(contador + 1);
-  		if(contador>0){
-			setRows(rows.concat(defaultState));
-  		}
-  	};
+	    // Call the defined function setTags which will replace tags with the new value.
+	    setTags(newTags);
+	};
 
-  	const handleOnRemove = (index) => {
-  		setContador(contador -  1);
-    	const copyRows = [...rows];
-    	copyRows.splice(index, 1);
-    	setRows(copyRows);
-  	};
+	const inputKeyDown = (e) => {
+	   
+
+		
+	    const val = e.target.value;
+	    
+	    if (e.key === 'Enter' && val) {
+	      if (tags.find(tag => tag.toLowerCase() === val.toLowerCase())) {
+	        return;
+	      }
+	      setTags([...tags, val]);
+	      document.getElementById("tag_form").reset();    
+	  	} else if (e.key === 'Backspace' && !val) {
+	      removeTag(tags.length - 1);
+	    }
+	};
+		
 
   	
     const enviarDatos = (event) => {
         event.preventDefault()
-        // console.log('enviando datos...' + datos.inputs + ' ' + datos.inputs2)
-        const ele = event.target.elements.inputs
-        let status = false
+        
+
+        let liCan = event.target.children[0].children[0].children[0].children[1].children.length
+        let ul = event.target.children[0].children[0].children[0].children[1]
+        
         let keywords = []
-        // ele.forEach(function(RadioNodeList){
-        // 	keywords.push(RadioNodeList.value)
-        // })
-        
-        
-        for (var i = 0; i < ele.length; ++i) {
-        	keywords.push({
-        	 "inputs" : ele[i].value
-        	})
+        for (var i = 0; i < liCan; ++i) {
+        	if( ul.children[i].innerText !== ''){
+        		
+        		keywords.push({
+	        	 "inputs" : ul.children[i].innerText
+	        	})
+        	}
         	
-        	status = true
-        	// code...
+        	
         }
-        if (status !== true){
-        	keywords.push({
-        		"inputs" : ele.value})
-        }
-        
+        console.log(keywords)
        	googleDataServices.create(keywords)
            .then(response => {
              console.log(response.data)
@@ -113,22 +110,6 @@ const ScraperGoogle = (props) => {
            })
     }
 
-    const Row=({ onChange, onRemove, nombre })=> {
-	  if (contador > 0) {
-	  	
-		  return (
-
-		    <CFormGroup>
-		    	<CInput type="text" name="inputs"  />
-		        <CButton type="" className="btn-gen" size="sm" color="danger"  onClick={handleOnRemove}>Eliminar input</CButton> 
-		      	
-		    </CFormGroup>
-		  );
-	  }
-	  	
-	  	return null
-
-	}
 
     return (
         <Fragment>
@@ -140,12 +121,24 @@ const ScraperGoogle = (props) => {
 													
 						</CCardHeader>
 						<CCardBody>
-							<CForm  onSubmit={(e) => enviarDatos(e)}>
+							<CForm onSubmit={(e) => enviarDatos(e)} id="tag_form" >
 								<CRow>
 									<CCol xs="8">
 										<CFormGroup>
 					                  		<CLabel htmlFor="nf-busqueda">Busqueda</CLabel>
-					                  		<CInput type="text"  placeholder="busqueda"  name="inputs" />
+					                  		<ul className="input-tag__tags">
+									        { tags.map((tag, i) => (
+									          <li key={tag}>
+									            {tag}
+									            <button type="button" onClick={() => { removeTag(i); }}></button>
+									          </li>
+									        ))}
+									        <li className="input-tag__tags__input">
+									        	<CInput  type="text" name="inputs" onKeyDown={(e) => inputKeyDown(e) }
+									        	 onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}} />
+									       
+									        </li>
+									      </ul>
 					    					<input 
 									             
 									            type="file" 
@@ -156,22 +149,13 @@ const ScraperGoogle = (props) => {
 									        />
 					                	</CFormGroup>
 
-					                	{rows.map((row, index) => (
-								     	   	<Row								          
-									          onChange={(name, value) => handleOnChange(index, name, value)}
-									    	   onRemove={() => handleOnRemove(index)}
-									   	       key={index}
-									   	    />
-								    	))}
 
 									</CCol>
 									<CCol xs="4">
 										<div className="posi-button">
 
-											<CButton type="reset" className="btn-sepa" size="sm" color="info" onClick={handleOnAdd}>Agregar Inputs</CButton>
-											
 											<CButton type="reset" className="btn-sepa" size="sm" color="danger">Limpiar</CButton>
-						            		<CButton type="submit"  className="btn-sepa" size="sm" color="success">buscar</CButton>
+						            		<CButton type="submit"   className="btn-sepa" size="sm" color="success">buscar</CButton>
 										</div>	
 									</CCol>
 								</CRow>
