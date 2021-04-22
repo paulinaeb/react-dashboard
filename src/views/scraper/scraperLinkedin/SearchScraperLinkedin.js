@@ -46,7 +46,7 @@ const SearchScraperLinkedin = (props) => {
 						<CRow>
 							<CCol xs="">
 							
-								Busqueda: {keywords[0]}
+								Busqueda: 
 							
 							</CCol>
 							<CCol xs="6">

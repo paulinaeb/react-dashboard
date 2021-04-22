@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState,useEffect, Suspense  } from 'react'
 import {
 	CCol,
   	CRow,
@@ -7,21 +7,25 @@ import {
  	CCardBody
 	
 } from '@coreui/react'
+import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-
+import { useHistory , withRouter } from 'react-router-dom';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 import { useLocation } from "react-router-dom";
 import googleDataServices from '../../../services/googleServices'
+import linkedinDataServices from '../../../services/linkedinServices'
 
 const SearchScraper = (props) => {
-
-	const [rowData,setRowData] = useState([])
+	let history = useHistory();
+	const [gridApi, setGridApi] = useState([]);
+	const [rowData,setRowData] = useState([]);
 	const location = useLocation();	
 	let count = location.customNameData.count;
 	let document = location.customNameData.document;
 	const keywords = location.customNameData.keywords;
-	console.log(keywords)
+	  const [loading, setLoading] = useState(true);
+
 	const getLocations = id => {
 	     googleDataServices.get(id)
 	      .then(response => {
@@ -37,30 +41,34 @@ const SearchScraper = (props) => {
 	    getLocations(document);
 	}, [document]);
 
-	// const [rowData] = useState([
-	//     {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "Conmar-web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "OpenTech C.A", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "Mobil-app", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "desing- Admin", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "Guyana dev", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "Dev caracas", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	//     {Nombre: "Diseño web", Telefono: "0212-2214548", Direccion: "caracas - venezuela", Web: "www.web-diseño.com"},
-	    
-	// ]);
-	
-	
-	// useEffect(() => {
-	//        console.log(location.pathname); // result: '/secondpage'
-	//        console.log(location.customNameData); // result: '?query=abc'
-	// }, [location]);
-	// useEffect(() => {
- //     fetch('https://www.ag-grid.com/example-assets/row-data.json')
-	//     .then(result => result.json())
-	//      .then(rowData => setRowData(rowData))
-	//  }, []);
 
+
+	
+	const getSelectedRowData = () => {
+	    let selectedNodes = gridApi.getSelectedNodes();
+	    let selectedData = selectedNodes.map(node => node.data);
+	    // alert(`Selected Nodes:\n${JSON.stringify(selectedData)}`);
+	    let datos = [];
+	    // console.log(selectedData[0].NOMBRE)
+	    for (var i = 0; i < selectedData.length; ++i) {
+        	        	
+        	datos.push(selectedData[i].NOMBRE)
+        }
+     	console.log(datos)
+	    
+	    linkedinDataServices.createGoo(datos)
+	       .then(response => {
+	         console.log(response.data)
+	         history.push({
+	         	pathname: '/sistemaLeeds/searchLinkedin',
+	         	customNameData: response.data,
+	         });
+	       })
+	  };
+
+	const onGridReady = params => {
+	    setGridApi(params.api);
+	}
 	
 	return(
 		<CRow>
@@ -69,14 +77,23 @@ const SearchScraper = (props) => {
 					
 					<CCardHeader xs="12">
 						<CRow>
-							<CCol xs="">
+							<CCol xs="4">
 							
 								Busqueda: 
 							
 							</CCol>
-							<CCol xs="6">
+							<CCol xs="4">
 							
 								Count : {count}
+							
+							</CCol>
+							<CCol xs="4">
+							
+								<button 
+						          onClick={getSelectedRowData}
+						          style={{margin: 10}}
+						          >Buscar en linkedin
+						        </button>
 							
 							</CCol>
 						</CRow>
@@ -90,17 +107,20 @@ const SearchScraper = (props) => {
 				            	
 				            	rowData= {rowData}
 				            	rowSelection="multiple"
-				               	
+				               	onGridReady={onGridReady}
 						        pagination={true}
 						        paginationPageSize={6}
 						        >
-				                <AgGridColumn  sortable={ true } field="NOMBRE" checkboxSelection={ true } ></AgGridColumn>
+				                <AgGridColumn  sortable={ true } field="NOMBRE" checkboxSelection={ true }  ></AgGridColumn>
 				                <AgGridColumn field="TELEFONO" filter={ true }></AgGridColumn>
 				                <AgGridColumn field="DIRECCION"></AgGridColumn>
 				                <AgGridColumn field="SITIO_WEB"></AgGridColumn>
 				                <AgGridColumn field="INPUT"></AgGridColumn>
 				            </AgGridReact>
 				        </div>
+				        <Suspense fallback={<div>Loading...</div>}>
+					        <loading />
+					    </Suspense>
 					</CCardBody>
 				</CCard>
 			</CCol>

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useRef } from 'react'
+import React, { Fragment, useState, useRef, Suspense } from 'react'
 import * as XLSX from 'xlsx'
 import { useHistory , withRouter } from 'react-router-dom';
 import {
@@ -19,7 +19,7 @@ import googleDataServices from '../../../services/googleServices'
 
 const ScraperGoogle = (props) => {
 	let history = useHistory();
-	const tagInput = useRef();
+	
 
 	const handleInputChange = (event) => {
 	    const target = event.target
@@ -49,9 +49,7 @@ const ScraperGoogle = (props) => {
 	  } 
 
 	const [tags, setTags] = React.useState([]);
-	const defaultState = {
-	  nombre: ""	  
-	};
+	const [loading, setLoading] = useState(true);
 
 	const removeTag = (i) => {
 	    const newTags = [ ...tags ];
@@ -148,7 +146,9 @@ const ScraperGoogle = (props) => {
 									            placeholder="Archivo de excel" 
 									        />
 					                	</CFormGroup>
-
+					                	<Suspense fallback={<div>Loading...</div>}>
+									        <loading />
+									    </Suspense>
 
 									</CCol>
 									<CCol xs="4">

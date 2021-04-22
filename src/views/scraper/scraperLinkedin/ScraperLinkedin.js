@@ -13,22 +13,60 @@ import {
 } from '@coreui/react'
 import { useHistory , withRouter } from 'react-router-dom';
 import linkedinDataServices from '../../../services/linkedinServices'
+import { useLocation } from "react-router-dom";
 
 
 const ScraperLinkedin = (props) => {
 
 	let history = useHistory();
+	
+	const [tags, setTags] = React.useState([]);
+	
+	
+	const removeTag = (i) => {
+	    const newTags = [ ...tags ];
+	    newTags.splice(i, 1);
+
+	    // Call the defined function setTags which will replace tags with the new value.
+	    setTags(newTags);
+	};
+
+	const inputKeyDown = (e) => {
+	   
+
+		
+	    const val = e.target.value;
+	    
+	    if (e.key === 'Enter' && val) {
+	      if (tags.find(tag => tag.toLowerCase() === val.toLowerCase())) {
+	        return;
+	      }
+	      setTags([...tags, val]);
+	      console.log(tags)
+	      document.getElementById("tag_form_linkedin").reset();    
+	  	} else if (e.key === 'Backspace' && !val) {
+	      removeTag(tags.length - 1);
+	    }
+	};
 
 	const enviarDatos = (event) => {
+		
         event.preventDefault()
-        const ele = event.target.elements.inputs
-        let status = false
-        let keywords = []
+       	let liCan = event.target.children[0].children[0].children[0].children[1].children.length
+        let ul = event.target.children[0].children[0].children[0].children[1]
         
-        if (status !== true){
-        	keywords.push({
-        		"inputs" : ele.value})
+        let keywords = []
+        for (var i = 0; i < liCan; ++i) {
+        	if( ul.children[i].innerText !== ''){
+        		
+        		keywords.push({
+	        	 "inputs" : ul.children[i].innerText
+	        	})
+        	}
+        	
+        	
         }
+        
 
         
         
@@ -52,12 +90,24 @@ const ScraperLinkedin = (props) => {
 													
 						</CCardHeader>
 						<CCardBody>
-							<CForm  onSubmit={(e) => enviarDatos(e)}>
+							<CForm  onSubmit={(e) => enviarDatos(e)} id="tag_form_linkedin">
 								<CRow>
 									<CCol xs="8">
 										<CFormGroup>
 					                  		<CLabel htmlFor="nf-busqueda">Busqueda</CLabel>
-					                  		<CInput type="text"  placeholder="busqueda"  name="inputs" />
+					                  		<ul className="input-tag__tags">
+										        { tags.map((tag, i) => (
+										          <li key={tag}>
+										            {tag}
+										            <button type="button" onClick={() => { removeTag(i); }}></button>
+										          </li>
+										        ))}
+										        <li className="input-tag__tags__input">
+										        	<CInput  type="text" name="inputs" onKeyDown={(e) => inputKeyDown(e) }
+										        	 onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}} />
+										       
+										        </li>
+										     </ul>
 					    					
 					                	</CFormGroup>
 
@@ -82,5 +132,5 @@ const ScraperLinkedin = (props) => {
 
 }
 
-export default withRouter (ScraperLinkedin)
+export default ScraperLinkedin
 
