@@ -15,16 +15,18 @@ import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 import { useLocation } from "react-router-dom";
 import googleDataServices from '../../../services/googleServices'
 import linkedinDataServices from '../../../services/linkedinServices'
+import Spinner from 'react-bootstrap/Spinner'
 
 const SearchScraper = (props) => {
 	let history = useHistory();
 	const [gridApi, setGridApi] = useState([]);
 	const [rowData,setRowData] = useState([]);
+	const [loading, setLoading] = useState(false);
 	const location = useLocation();	
 	let count = location.customNameData.count;
 	let document = location.customNameData.document;
 	const keywords = location.customNameData.keywords;
-	  const [loading, setLoading] = useState(true);
+	 
 
 	const getLocations = id => {
 	     googleDataServices.get(id)
@@ -45,6 +47,7 @@ const SearchScraper = (props) => {
 
 	
 	const getSelectedRowData = () => {
+		setLoading(true)
 	    let selectedNodes = gridApi.getSelectedNodes();
 	    let selectedData = selectedNodes.map(node => node.data);
 	    // alert(`Selected Nodes:\n${JSON.stringify(selectedData)}`);
@@ -58,6 +61,7 @@ const SearchScraper = (props) => {
 	    
 	    linkedinDataServices.createGoo(datos)
 	       .then(response => {
+	       	 setLoading(false);
 	         console.log(response.data)
 	         history.push({
 	         	pathname: '/sistemaLeeds/searchLinkedin',
@@ -98,7 +102,7 @@ const SearchScraper = (props) => {
 							</CCol>
 						</CRow>
 					</CCardHeader>	
-					
+					{ loading && <Spinner animation="border"/> }
 						
 					<CCardBody>
 						<div className="ag-theme-alpine" style={{ height: 360, width: '100%' }}>

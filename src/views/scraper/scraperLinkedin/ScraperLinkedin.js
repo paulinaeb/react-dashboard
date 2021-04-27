@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react'
+import React, {Fragment, useState} from 'react'
 import {
 	CCol,
   	CRow,
@@ -14,14 +14,15 @@ import {
 import { useHistory , withRouter } from 'react-router-dom';
 import linkedinDataServices from '../../../services/linkedinServices'
 import { useLocation } from "react-router-dom";
-
+import Spinner from 'react-bootstrap/Spinner'
 
 const ScraperLinkedin = (props) => {
 
 	let history = useHistory();
 	
 	const [tags, setTags] = React.useState([]);
-	
+	const [loading, setLoading] = useState(false);
+
 	
 	const removeTag = (i) => {
 	    const newTags = [ ...tags ];
@@ -32,7 +33,7 @@ const ScraperLinkedin = (props) => {
 	};
 
 	const inputKeyDown = (e) => {
-	   
+	   	
 
 		
 	    const val = e.target.value;
@@ -50,7 +51,7 @@ const ScraperLinkedin = (props) => {
 	};
 
 	const enviarDatos = (event) => {
-		
+		setLoading(true)
         event.preventDefault()
        	let liCan = event.target.children[0].children[0].children[0].children[1].children.length
         let ul = event.target.children[0].children[0].children[0].children[1]
@@ -72,6 +73,7 @@ const ScraperLinkedin = (props) => {
         
        	linkedinDataServices.create(keywords)
 	       .then(response => {
+	       	setLoading(false)
 	         console.log(response.data)
 	         history.push({
 	         	pathname: '/sistemaLeeds/searchLinkedin',
@@ -110,7 +112,7 @@ const ScraperLinkedin = (props) => {
 										     </ul>
 					    					
 					                	</CFormGroup>
-
+					                	{ loading && <Spinner animation="border"/> }
 
 									</CCol>
 									<CCol xs="4">

@@ -14,7 +14,7 @@ import {
 	CButton
 } from '@coreui/react'
 import googleDataServices from '../../../services/googleServices'
-
+import Spinner from 'react-bootstrap/Spinner'
 
 
 const ScraperGoogle = (props) => {
@@ -49,7 +49,7 @@ const ScraperGoogle = (props) => {
 	  } 
 
 	const [tags, setTags] = React.useState([]);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 
 	const removeTag = (i) => {
 	    const newTags = [ ...tags ];
@@ -79,6 +79,7 @@ const ScraperGoogle = (props) => {
 
   	
     const enviarDatos = (event) => {
+    	setLoading(true)
         event.preventDefault()
         
 
@@ -97,10 +98,13 @@ const ScraperGoogle = (props) => {
         	
         }
         console.log(keywords)
+        
        	googleDataServices.create(keywords)
            .then(response => {
              console.log(response.data)
+             setLoading(false);
              history.push({
+
              	pathname: '/sistemaLeeds/searchGogle',
              	customNameData: response.data,
              });
@@ -146,9 +150,7 @@ const ScraperGoogle = (props) => {
 									            placeholder="Archivo de excel" 
 									        />
 					                	</CFormGroup>
-					                	<Suspense fallback={<div>Loading...</div>}>
-									        <loading />
-									    </Suspense>
+					                	{ loading && <Spinner animation="border"/> }
 
 									</CCol>
 									<CCol xs="4">
