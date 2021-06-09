@@ -40,10 +40,12 @@ const User = React.lazy(() => import('./views/users/User'));
 
 const ScraperGoogle = React.lazy(() => import('./views/scraper/scraperGoogle/ScraperGoogle'));
 const ScraperLinkedin = React.lazy(() => import('./views/scraper/scraperLinkedin/ScraperLinkedin'));
+const ScraperInstagram = React.lazy(() => import('./views/scraper/scraperInstagram/ScraperInstagram'));
+const InstagramScrapeDetail = React.lazy(() => import('./views/scraper/scraperInstagram/ScrapeDetail'));
+const InstagramUserDetail = React.lazy(() => import('./views/scraper/scraperInstagram/UserDetail'));
 const SearchScraper = React.lazy(() => import('./views/scraper/scraperGoogle/SearchScraper'));
 const SearchScraperLinkedin = React.lazy(()=> import('./views/scraper/scraperLinkedin/SearchScraperLinkedin'));
 const Scrapers = React.lazy(()=> import('./views/scraper/Scrapers'));
-
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -86,12 +88,14 @@ const routes = [
   { path: '/widgets', name: 'Widgets', component: Widgets },
   { path: '/users', exact: true,  name: 'Users', component: Users },
   { path: '/users/:id', exact: true, name: 'User Details', component: User },
-  { path: '/sistemaLeeds/scraperGoogle', exact: true, name: 'Scraper Google', component: ScraperGoogle},
-  { path: '/sistemaLeeds/scraperLinkedin', exact: true, name: 'Scraper Linkedin', component: ScraperLinkedin}, 
-  { path: '/sistemaLeeds/searchGogle', exact: true, name: 'Search Google', component: SearchScraper},
-  { path: '/sistemaLeeds/searchLinkedin', exact: true, name: 'Search Linkedin', component: SearchScraperLinkedin},
-  { path: '/sistemaLeeds/scrapers', exact: true, name: 'Scrapers', component: Scrapers}
-
+  { path: '/sistemaLeeds/scraperGoogle', exact: true, name: 'Scraper Google', component: ScraperGoogle },
+  { path: '/sistemaLeeds/scraperLinkedin', exact: true, name: 'Scraper Linkedin', component: ScraperLinkedin }, 
+  { path: '/sistemaLeeds/searchGogle', exact: true, name: 'Search Google', component: SearchScraper },
+  { path: '/sistemaLeeds/searchLinkedin', exact: true, name: 'Search Linkedin', component: SearchScraperLinkedin },
+  { path: '/sistemaLeeds/scrapers', exact: true, name: 'Scrapers', component: Scrapers },
+  { path: '/instagramscraper', exact: true, name: 'Scraper Instagram', component: ScraperInstagram },
+  { path: '/instagramscraper/scrape-summary', exact: true, name: 'Resumen de Scrape', component: InstagramScrapeDetail },
+  { path: '/instagramscraper/scrape-summary/user-detail', exact: true, name: 'Detalle de Usuario', component: InstagramUserDetail }
 ];
 
 export default routes;
