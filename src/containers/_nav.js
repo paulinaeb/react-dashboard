@@ -1,4 +1,3 @@
-import React from 'react'
 import CIcon from '@coreui/icons-react'
 
 const _nav =  [
@@ -11,6 +10,30 @@ const _nav =  [
       color: 'info',
       text: 'NEW',
     }
+  },
+  {
+    _tag:'CSidebarNavDropdown',
+    name: 'Sistema Leeds',
+    route: 'ScraperGoogle',
+    icon: 'cil-check',
+    _children: [
+      {
+        _tag: 'CSidebarNavItem',
+        name: 'Scraper Google',
+        to: '/SistemaLeeds/ScraperGoogle',
+      },
+      {
+        _tag: 'CSidebarNavItem',
+        name: 'Scraper Linkedin',
+        to: '/SistemaLeeds/ScraperLinkedin',
+      },
+    ],
+  },
+  {
+    _tag:'CSidebarNavItem',
+    name: 'Instagram Scraper',
+    to: '/instagramscraper',
+    icon: 'cib-instagram',
   },
   {
     _tag: 'CSidebarNavTitle',
@@ -123,10 +146,10 @@ const _nav =  [
   {
     _tag: 'CSidebarNavDropdown',
     name: 'Buttons',
-    route: '/buttons',
     icon: 'cil-cursor',
     _children: [
       {
+    route: '/buttons',
         _tag: 'CSidebarNavItem',
         name: 'Buttons',
         to: '/buttons/buttons',
