@@ -180,7 +180,7 @@ const ScraperInstagram = () => {
                       </CInputGroupPrepend>
                       <CInput
                         name="username"
-                        placeholder="somosopentech"
+                        placeholder="usuario_ejemplo"
                         required
                         onChange={(e) => setUsername(e.target.value)}
                       />
@@ -199,7 +199,7 @@ const ScraperInstagram = () => {
                       <CInput
                         type="email"
                         name="nf-email"
-                        placeholder="correito@ejemplo.com"
+                        placeholder="correo@ejemplo.com"
                         autoComplete="email"
                         onChange={(e) => setEmail(e.target.value)}
                       />
@@ -243,6 +243,7 @@ const ScraperInstagram = () => {
                       </CInputGroupPrepend>
                       <CInput
                         name="scrapingPass"
+                        type="password"
                         placeholder="Dejar en blanco para predeterminado"
                         onChange={(e) => setScrapingPass(e.target.value)}
                       />

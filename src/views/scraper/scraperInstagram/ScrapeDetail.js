@@ -69,8 +69,8 @@ const ScrapeDetail = () => {
         // console.log('response', res.data);
         const formattedData = res.data.rows.map((e) => ({
           ...e,
-          like_percent: e.like_percent.toFixed(3),
-          comment_percent: e.comment_percent.toFixed(3),
+          like_percent: e.like_percent.toFixed(1),
+          comment_percent: e.comment_percent.toFixed(1),
         }));
         setRowData(formattedData);
         setTotalPages(Math.ceil(res.data.count / pageSize));
@@ -246,7 +246,118 @@ const ScrapeDetail = () => {
         <CCol xs="12">
           <CCard>
             <CCardHeader>
-              <h5 className="card-title">Engagements de los usuarios</h5>
+              <h5 className="card-title">Engagement de los usuarios</h5>
+            </CCardHeader>
+            <CCardBody>
+              <div
+                className="ag-theme-alpine"
+                style={{ height: 520, width: '100%' }}
+              >
+                <AgGridReact
+                  rowData={rowData}
+                  pagination={false}
+                  paginationPageSize={20}
+                  onGridReady={onGridReady}
+                  onSortChanged={onSortChanged}
+                  sortingOrder={['desc', 'asc', null]}
+                  frameworkComponents={{
+                    iconComponent: (params) => (
+                      <a
+                        href={`https://www.instagram.com/${params.value}/`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                      >
+                        <CIcon name="cib-instagram" height="24" />
+                      </a>
+                    ),
+                    userComponent: (params) => (
+                      <Link
+                        to="/instagramscraper/scrape-summary/user-detail"
+                        onClick={() => selectUser(params.data)}
+                      >
+                        {params.value}
+                      </Link>
+                    ),
+                  }}
+                >
+                  <AgGridColumn
+                    field="username"
+                    headerName="Usuario"
+                    cellRenderer="userComponent"
+                    flex={1}
+                  />
+                  <AgGridColumn
+                    field="like_count"
+                    headerName="# de Likes"
+                    sortable
+                    sortingOrder={['asc', null]}
+                    flex={1}
+                  />
+                  <AgGridColumn
+                    field="like_percent"
+                    headerName="% de Likes"
+                    flex={1}
+                  />
+                  <AgGridColumn
+                    field="comment_count"
+                    headerName="# de Comentarios"
+                    sortable
+                    flex={1}
+                  />
+                  <AgGridColumn
+                    field="comment_percent"
+                    headerName="% de Comentarios"
+                    flex={1}
+                  />
+                  <AgGridColumn
+                    field="username"
+                    headerName="Ver Perfil"
+                    cellRenderer="iconComponent"
+                    flex={1}
+                    maxWidth={150}
+                  />
+                </AgGridReact>
+              </div>
+              <PaginationBox
+                loading={loading}
+                rowData={rowData !== null}
+                page={page}
+                totalPages={totalPages}
+                exportGrid={exportGrid}
+                onBtFirst={onBtFirst}
+                onBtPrevious={onBtPrevious}
+                onBtNext={onBtNext}
+                onBtLast={onBtLast}
+              />
+              <CModal
+                show={errorModal}
+                onClose={() => setErrorModal(!errorModal)}
+                color="danger"
+              >
+                <CModalHeader closeButton>
+                  <CModalTitle>Hubo un error...</CModalTitle>
+                </CModalHeader>
+                <CModalBody>Ha ocurrido un error obteniendo la data</CModalBody>
+                <CModalFooter>
+                  <CButton
+                    color="danger"
+                    onClick={() => setErrorModal(!errorModal)}
+                  >
+                    Cerrar
+                  </CButton>
+                </CModalFooter>
+              </CModal>
+            </CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>
+       {/* Tabla de micro-influenciadores */}
+       <CRow>
+        <CCol xs="12">
+          <CCard>
+            <CCardHeader>
+              <h5 className="card-title">Micro-influencers identificados en los seguidores del usuario</h5>
             </CCardHeader>
             <CCardBody>
               <div
