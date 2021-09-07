@@ -105,23 +105,24 @@ const ScraperInstagram = () => {
         scrapingUser,
         scrapingPass
       );
-      // console.log("response", res);
+      console.log("response", res);
       setScrapingUser('');
       setScrapingPass('');
       setUsername('');
       setEmail('');
     } catch (e) {
       console.log('error en startScrape', e);
-      toggleModal('danger', 'Ha ocurrido un error al inciar el scrape');
+      toggleModal('danger', 'Ha ocurrido un error al inciar el scrape...');
     }
     if (res.status === 202) {
       toggleModal(
         'success',
-        'Se ha iniciado el proceso de análisis de la cuenta indicada. Al finalizar le llegará un correo al email indicado'
+        'Su solicitud está siendo procesada. Si los datos suministrados son correctos, le llegará un correo al email indicado cuando los resultados del análisis estén listos.'
       );
     } else {
-      toggleModal('danger', 'Ha ocurrido un error al inciar el scrape');
+      toggleModal('danger', 'Ha ocurrido un error al inciar el scrape.');
     }
+    console.log("response", res.data.message);
   };
 
   const exportGrid = async () => {

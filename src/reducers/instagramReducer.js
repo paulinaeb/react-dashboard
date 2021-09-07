@@ -3,6 +3,7 @@ import * as Actions from 'src/actions/actionTypes';
 const initState = {
   selectedScrape: {},
   selectedUser: {},
+  selectedInfluencer: {},
 };
 
 export default function instagramReducer(state = initState, action = {}) {
@@ -16,6 +17,11 @@ export default function instagramReducer(state = initState, action = {}) {
       return {
         ...state,
         selectedUser: action.payload
+      };
+    case Actions.SELECT_INFLUENCER:
+      return{
+        ...state,
+        selectedInfluencer: action.payload
       };
     default:
       return state;

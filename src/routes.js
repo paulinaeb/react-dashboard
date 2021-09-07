@@ -43,6 +43,7 @@ const ScraperLinkedin = React.lazy(() => import('./views/scraper/scraperLinkedin
 const ScraperInstagram = React.lazy(() => import('./views/scraper/scraperInstagram/ScraperInstagram'));
 const InstagramScrapeDetail = React.lazy(() => import('./views/scraper/scraperInstagram/ScrapeDetail'));
 const InstagramUserDetail = React.lazy(() => import('./views/scraper/scraperInstagram/UserDetail'));
+const InstagramInfluencerDetail = React.lazy(() => import('./views/scraper/scraperInstagram/InfluencerDetail'));
 const SearchScraper = React.lazy(() => import('./views/scraper/scraperGoogle/SearchScraper'));
 const SearchScraperLinkedin = React.lazy(()=> import('./views/scraper/scraperLinkedin/SearchScraperLinkedin'));
 const Scrapers = React.lazy(()=> import('./views/scraper/Scrapers'));
@@ -95,7 +96,8 @@ const routes = [
   { path: '/sistemaLeeds/scrapers', exact: true, name: 'Scrapers', component: Scrapers },
   { path: '/instagramscraper', exact: true, name: 'Scraper Instagram', component: ScraperInstagram },
   { path: '/instagramscraper/scrape-summary', exact: true, name: 'Resumen de Scrape', component: InstagramScrapeDetail },
-  { path: '/instagramscraper/scrape-summary/user-detail', exact: true, name: 'Detalle de Usuario', component: InstagramUserDetail }
+  { path: '/instagramscraper/scrape-summary/user-detail', exact: true, name: 'Detalle de Usuario', component: InstagramUserDetail },
+  { path: '/instagramscraper/scrape-summary/influencer-detail', exact: true, name: 'Informacion de Influencer', component: InstagramInfluencerDetail }
 ];
 
 export default routes;

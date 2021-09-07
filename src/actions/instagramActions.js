@@ -12,3 +12,8 @@ export const selectUser = selectedUser => ({
   type: Actions.SELECT_USER,
   payload: selectedUser,
 });
+
+export const selectInfluencer = selectedInfluencer => ({
+  type: Actions.SELECT_INFLUENCER,
+  payload: selectedInfluencer,
+}) 

@@ -89,6 +89,10 @@ const ScrapeDetail = () => {
     dispatch(Actions.selectUser(userData));
   };
 
+  const selectInfluencer = (userInfo) => {
+    dispatch(Actions.selectInfluencer(userInfo));
+  }
+
   const onBtFirst = () => {
     setPage(1);
   };
@@ -217,9 +221,7 @@ const ScrapeDetail = () => {
                 <CChartPie
                   datasets={[
                     {
-                      backgroundColor: [
-                        // "#41B883",
-                        // "#E46651",
+                      backgroundColor: [ 
                         '#00D8FF',
                         '#DD1B16',
                       ],
@@ -274,7 +276,7 @@ const ScrapeDetail = () => {
                     userComponent: (params) => (
                       <Link
                         to="/instagramscraper/scrape-summary/user-detail"
-                        onClick={() => selectUser(params.data)}
+                        onClick={() => selectInfluencer(params.data)}
                       >
                         {params.value}
                       </Link>
@@ -384,7 +386,7 @@ const ScrapeDetail = () => {
                     ),
                     userComponent: (params) => (
                       <Link
-                        to="/instagramscraper/scrape-summary/user-detail"
+                        to="/instagramscraper/scrape-summary/influencer-detail"
                         onClick={() => selectUser(params.data)}
                       >
                         {params.value}
@@ -400,25 +402,16 @@ const ScrapeDetail = () => {
                   />
                   <AgGridColumn
                     field="like_count"
-                    headerName="# de Likes"
+                    headerName="# de Seguidores"
                     sortable
                     sortingOrder={['asc', null]}
                     flex={1}
-                  />
-                  <AgGridColumn
-                    field="like_percent"
-                    headerName="% de Likes"
-                    flex={1}
-                  />
-                  <AgGridColumn
-                    field="comment_count"
-                    headerName="# de Comentarios"
-                    sortable
-                    flex={1}
-                  />
+                  />  
                   <AgGridColumn
                     field="comment_percent"
-                    headerName="% de Comentarios"
+                    headerName="% de Engagement"
+                    sortable
+                    sortingOrder={['desc', null]}
                     flex={1}
                   />
                   <AgGridColumn
