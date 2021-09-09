@@ -276,7 +276,7 @@ const ScrapeDetail = () => {
                     userComponent: (params) => (
                       <Link
                         to="/instagramscraper/scrape-summary/user-detail"
-                        onClick={() => selectInfluencer(params.data)}
+                        onClick={() => selectUser(params.data)}
                       >
                         {params.value}
                       </Link>
@@ -293,7 +293,7 @@ const ScrapeDetail = () => {
                     field="like_count"
                     headerName="# de Likes"
                     sortable
-                    sortingOrder={['asc', null]}
+                    sortingOrder={['asc', null]} 
                     flex={1}
                   />
                   <AgGridColumn
@@ -304,7 +304,8 @@ const ScrapeDetail = () => {
                   <AgGridColumn
                     field="comment_count"
                     headerName="# de Comentarios"
-                    sortable
+                    sortable 
+                    sortingOrder={['asc', null]} 
                     flex={1}
                   />
                   <AgGridColumn
@@ -388,6 +389,7 @@ const ScrapeDetail = () => {
                       <Link
                         to="/instagramscraper/scrape-summary/influencer-detail"
                         onClick={() => selectUser(params.data)}
+                        // cambiar a selectInfluencer
                       >
                         {params.value}
                       </Link>
@@ -411,7 +413,7 @@ const ScrapeDetail = () => {
                     field="comment_percent"
                     headerName="% de Engagement"
                     sortable
-                    sortingOrder={['desc', null]}
+                    sortingOrder={['asc', null]}
                     flex={1}
                   />
                   <AgGridColumn
@@ -461,3 +463,4 @@ const ScrapeDetail = () => {
 };
 
 export default ScrapeDetail;
+ 

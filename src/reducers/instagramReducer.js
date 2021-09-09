@@ -23,7 +23,7 @@ export default function instagramReducer(state = initState, action = {}) {
         ...state,
         selectedInfluencer: action.payload
       };
-    default:
-      return state;
+     default:
+       return state;
   }
 }
