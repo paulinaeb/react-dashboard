@@ -36,6 +36,12 @@ const _nav =  [
     icon: 'cib-instagram',
   },
   {
+    _tag:'CSidebarNavItem',
+    name: 'Micro-Influencer Finder',
+    to: '/micro-influencer-finder',
+    icon: 'cib-instagram',
+  },
+  {
     _tag: 'CSidebarNavTitle',
     _children: ['Theme']
   },
