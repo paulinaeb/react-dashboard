@@ -37,6 +37,43 @@
   font-weight: 600;
 }
 
+.buscador{
+  text-align: center;
+  padding: 20px;
+}
+
+.primary-title{  
+  padding-bottom: 40px;
+}
+
+.search-button {
+  position: relative;
+  float: right;
+  padding: 6px 8px;
+  background: rgb(23, 12, 95);
+  font-size: 17px;
+  border-radius: 30px;
+  border: 2px;
+  color: white;
+  cursor: pointer; 
+  z-index: 100;
+  outline: none;
+}
+
+.search-button:hover {
+  background: rgb(29, 69, 170);
+}
+
+.search-bar{
+    width: 560px;
+    height: 50px;
+    border-radius: 25px;
+    border-color: rgb(186, 186, 186);
+    outline: none; 
+    font-size: 1.1rem;
+    padding:15px;
+}
+
 .chart-container {
   display: flex;
   justify-content: center;

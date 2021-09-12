@@ -41,6 +41,10 @@ const MicroinfluencerFinder = () => {
   const [errorModal, setErrorModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const [modal, setModal] = useState(false);
+  const [modalColor, setModalColor] = useState('primary');
+  const [modalMessage, setModalMessage] = useState({ title: '', body: '' });
+
   const dispatch = useDispatch();
   const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
 
@@ -53,37 +57,32 @@ const MicroinfluencerFinder = () => {
     setGridColumnApi(params.columnApi);
   };
 
+  const toggleModal = (color, message) => {
+    setModalColor(color);
+    const title = color === 'success' ? 'Scrape iniciado!' : 'Hubo un error...';
+    setModalMessage({ title, body: message });
+    setModal(true);
+  };
+
   useEffect(() => {
-    const updateGrid = async () => {
-      const { id, scraped_date } = scrapedProfile;
+    const getProfiles = async () => {
       setLoading(true);
       try {
-        let res = await service.getScrapeDetails2(
-          id,
-          scraped_date['$date'],
-          page,
-          pageSize,
-          sortedColumn.field,
-          sortedColumn.sort
-        );
-        // console.log('response', res.data);
-        const formattedData = res.data.rows.map((e) => ({
-          ...e,
-          like_percent: e.like_percent.toFixed(1),
-          comment_percent: e.comment_percent.toFixed(1),
-        }));
-        setRowData(formattedData);
+        let res = await service.getScrapedProfiles(page, pageSize);
+        setRowData(res.data.rows);
         setTotalPages(Math.ceil(res.data.count / pageSize));
+        // console.log('response', res.data);
+        return res.data;
       } catch (e) {
-        console.log('error en getUsersEngagement\n', e);
+        console.log('error en getProfiles', e);
         setRowData(null);
-        setErrorModal((showModal) => !showModal);
+        toggleModal('danger', 'Ha ocurrido un error obteniendo la data');
       } finally {
         setLoading(false);
       }
     };
-    updateGrid();
-  }, [page, pageSize, scrapedProfile, sortedColumn]);
+    getProfiles();
+  }, [page, pageSize]);
 
   const selectUser = (userData) => {
     dispatch(Actions.selectUser(userData));
@@ -142,18 +141,21 @@ const MicroinfluencerFinder = () => {
     }
   };
 
-  if (!scrapedProfile || !scrapedProfile.scraped_date) {
-    return <Redirect to="/micro-influencer-finder" />;
-  }
-
   return (
     <>
        {/* Tabla de micro-influenciadores */}
        <CRow>
         <CCol xs="12">
+        <section class="buscador">
+        <h3 className="card-title primary-title">Búsqueda de Micro-influenciadores en cuentas de Instagram</h3>
+        <form action="" >
+            <input type="text" placeholder="    usuario_ejemplo..." name="search" method="post" class="search-bar"/>
+            <button type="submit" className="search-button"><i class="fa fa-search"></i></button>
+        </form>
+       </section>
           <CCard>
             <CCardHeader>
-              <h5 className="card-title">Micro-influencers potenciales en los seguidores del usuario</h5>
+              <h5 className="card-title">Perfiles analizados recientemente</h5>
             </CCardHeader>
             <CCardBody>
               <div
@@ -196,7 +198,7 @@ const MicroinfluencerFinder = () => {
                     flex={1}
                   />
                   <AgGridColumn
-                    field="like_count"
+                    field="follower_count"
                     headerName="# de Seguidores"
                     sortable
                     sortingOrder={['asc', null]}
