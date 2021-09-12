@@ -8,6 +8,7 @@ import {
   CCardBody,
   CCardHeader,
   CInput,
+  CForm,
   CWidgetProgressIcon,
   CWidgetBrand,
   CModal,
@@ -30,6 +31,8 @@ import * as Actions from 'src/actions/instagramActions';
 import service from 'src/services/instagram';
 
 const MicroinfluencerFinder = () => {
+
+  const [searchUser, setSearchUser] = useState('');
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [rowData, setRowData] = useState(null);
@@ -142,6 +145,39 @@ const MicroinfluencerFinder = () => {
     }
   };
 
+  const startFinding = async (e) => {
+    let res = null;
+    e.preventDefault();
+    e.target.reset();
+    try {
+      // res = await service.startScraper(
+      //   username,
+      //   email,
+      //   scrapingUser,
+      //   scrapingPass
+      // );
+
+      // console.log("response", res); 
+    } catch (e) {
+      console.log('error en startScrape', e);
+      toggleModal('danger', 'Ha ocurrido un error al inciar el buscador...');
+    }
+    if (res!= null){
+      if (res.status === 202) {
+        toggleModal(
+          'success',
+          'Su solicitud está siendo procesada. Si los datos suministrados son correctos, le llegará un correo al email indicado cuando los resultados del análisis estén listos.'
+        );
+      }
+      else {
+        toggleModal('danger', 'Ha ocurrido un error al inciar el buscador.');
+      } 
+    }
+    else {
+      toggleModal('danger', 'Ha ocurrido un error al inciar el buscador.');
+    } 
+  };
+
   return (
     <>
        {/* Tabla de micro-influenciadores */}
@@ -149,8 +185,17 @@ const MicroinfluencerFinder = () => {
         <CCol xs="12">
         <section class="buscador">
         <h3 className="card-title primary-title">Búsqueda de Micro-influenciadores en cuentas de Instagram</h3>
-            <CInput type="text" placeholder="usuario_ejemplo..." name="user-search" method="post" class="search-bar"/>
-            <CButton type="submit" className="search-button">Ir</CButton>
+        <CForm id="search-form" onSubmit={startFinding}>
+            <CInput 
+              type="text" 
+              placeholder="usuario_ejemplo..." 
+              name="userSearch" 
+              method="post" 
+              class="search-bar"
+              onChange={(e) => setSearchUser(e.target.value)}
+            />
+            <CButton type="submit" className="search-button" disabled={!searchUser} >Ir</CButton>
+        </CForm>
        </section>
           <CCard>
             <CCardHeader>
