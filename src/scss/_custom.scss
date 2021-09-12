@@ -39,36 +39,37 @@
 
 .buscador{
   text-align: center;
-  padding: 20px;
+  padding: 40px;
 }
 
 .primary-title{  
+  font-weight: bold;
   padding-bottom: 40px;
 }
 
 .search-button {
   position: relative;
-  float: right;
-  padding: 6px 8px;
-  background: rgb(23, 12, 95);
-  font-size: 17px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  margin-left: -45px;
+  background: rgb(63, 79, 119);
+  font-size: 17px; 
   border-radius: 30px;
-  border: 2px;
-  color: white;
-  cursor: pointer; 
-  z-index: 100;
-  outline: none;
+  color: white; 
+  z-index: 100; 
 }
 
 .search-button:hover {
-  background: rgb(29, 69, 170);
+  color:white;
+  background: cornflowerblue;
 }
 
 .search-bar{
     width: 560px;
     height: 50px;
+    border: none;
     border-radius: 25px;
-    border-color: rgb(186, 186, 186);
     outline: none; 
     font-size: 1.1rem;
     padding:15px;

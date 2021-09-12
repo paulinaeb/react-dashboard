@@ -7,6 +7,7 @@ import {
   CCard,
   CCardBody,
   CCardHeader,
+  CInput,
   CWidgetProgressIcon,
   CWidgetBrand,
   CModal,
@@ -148,10 +149,8 @@ const MicroinfluencerFinder = () => {
         <CCol xs="12">
         <section class="buscador">
         <h3 className="card-title primary-title">Búsqueda de Micro-influenciadores en cuentas de Instagram</h3>
-        <form action="" >
-            <input type="text" placeholder="    usuario_ejemplo..." name="search" method="post" class="search-bar"/>
-            <button type="submit" className="search-button"><i class="fa fa-search"></i></button>
-        </form>
+            <CInput type="text" placeholder="usuario_ejemplo..." name="user-search" method="post" class="search-bar"/>
+            <CButton type="submit" className="search-button">Ir</CButton>
        </section>
           <CCard>
             <CCardHeader>
