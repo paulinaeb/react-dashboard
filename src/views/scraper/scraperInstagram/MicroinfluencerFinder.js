@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
   CCol,
   CRow,
@@ -8,24 +8,19 @@ import {
   CCardBody,
   CCardHeader,
   CInput,
-  CForm,
-  CWidgetProgressIcon,
-  CWidgetBrand,
+  CForm, 
   CModal,
   CModalBody,
   CModalFooter,
   CModalHeader,
   CModalTitle,
   CButton,
-} from '@coreui/react';
-import { CChartPie } from '@coreui/react-chartjs';
+} from '@coreui/react'; 
 import CIcon from '@coreui/icons-react';
-
 import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
-
 import PaginationBox from 'src/reusable/PaginationBox';
 import * as Actions from 'src/actions/instagramActions';
 import service from 'src/services/instagram';
@@ -39,8 +34,7 @@ const MicroinfluencerFinder = () => {
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [totalPages, setTotalPages] = useState(0);
-  const [sortedColumn, setSortedColum] = useState({ field: null, sort: null });
+  const [totalPages, setTotalPages] = useState(0); 
 
   const [errorModal, setErrorModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -50,6 +44,7 @@ const MicroinfluencerFinder = () => {
   const [modalMessage, setModalMessage] = useState({ title: '', body: '' });
 
   const dispatch = useDispatch();
+  const history = useHistory();
   const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
 
   const formattedDate =
@@ -88,13 +83,11 @@ const MicroinfluencerFinder = () => {
     getProfiles();
   }, [page, pageSize]);
 
-  const selectUser = (userData) => {
-    dispatch(Actions.selectUser(userData));
+  const navigateToScrape = (e) => { 
+    console.log(e.data.id, ' ', e.data.scraped_date['$date']);
+    dispatch(Actions.selectScrape(e.data));
+    history.push('/micro-influencer-finder/search-detail');
   };
-
-  const selectInfluencer = (userInfo) => {
-    dispatch(Actions.selectInfluencer(userInfo));
-  }
 
   const onBtFirst = () => {
     setPage(1);
@@ -111,21 +104,7 @@ const MicroinfluencerFinder = () => {
   const onBtLast = () => {
     setPage(totalPages);
   };
-
-  const onSortChanged = (event) => {
-    if (!gridColumnApi) return;
-    const toggledColumn = gridColumnApi
-      .getColumnState()
-      .find((c) => c.sort !== null);
-
-    if (toggledColumn) {
-      const sort = toggledColumn.sort === 'asc' ? 1 : -1;
-      setSortedColum({ field: toggledColumn.colId, sort });
-    } else {
-      setSortedColum({ field: null, sort: null });
-    }
-  };
-
+ 
   const exportGrid = async () => {
     const { id, scraped_date } = scrapedProfile;
     setLoading(true);
@@ -183,7 +162,7 @@ const MicroinfluencerFinder = () => {
        {/* Tabla de micro-influenciadores */}
        <CRow>
         <CCol xs="12">
-        <section class="buscador">
+        <section className="buscador">
         <h3 className="card-title primary-title">Búsqueda de Micro-influenciadores en cuentas de Instagram</h3>
         <CForm id="search-form" onSubmit={startFinding}>
             <CInput 
@@ -194,9 +173,10 @@ const MicroinfluencerFinder = () => {
               class="search-bar"
               onChange={(e) => setSearchUser(e.target.value)}
             />
-            <CButton type="submit" className="search-button" disabled={!searchUser} >Ir</CButton>
+            <CButton type="submit" class="search-button" disabled={!searchUser} >Ir</CButton>
         </CForm>
        </section>
+      {/* tabla de perfiles buscados */}
           <CCard>
             <CCardHeader>
               <h5 className="card-title">Perfiles analizados recientemente</h5>
@@ -211,8 +191,7 @@ const MicroinfluencerFinder = () => {
                   pagination={false}
                   paginationPageSize={20}
                   onGridReady={onGridReady}
-                  onSortChanged={onSortChanged}
-                  sortingOrder={['desc', 'asc', null]}
+                  onRowClicked={navigateToScrape}
                   frameworkComponents={{
                     iconComponent: (params) => (
                       <a
@@ -223,18 +202,19 @@ const MicroinfluencerFinder = () => {
                       >
                         <CIcon name="cib-instagram" height="24" />
                       </a>
-                    ),
-                    userComponent: (params) => (
-                      <Link
-                        to="/instagramscraper/scrape-summary/influencer-detail"
-                        onClick={() => selectUser(params.data)}
-                        // cambiar a selectInfluencer
-                      >
-                        {params.value}
-                      </Link>
-                    ),
+                    ), 
                   }}
                 >
+                <AgGridColumn
+                  headerName="Fecha"
+                  field="scraped_date"
+                  checkboxSelection={false}
+                  valueGetter={(params) => {
+                    const unixTime = params.data.scraped_date['$date'];
+                    return new Date(unixTime).toLocaleString('es-VE');
+                  }}
+                  flex={1}
+                  />
                   <AgGridColumn
                     field="username"
                     headerName="Usuario"
@@ -243,16 +223,12 @@ const MicroinfluencerFinder = () => {
                   />
                   <AgGridColumn
                     field="follower_count"
-                    headerName="# de Seguidores"
-                    sortable
-                    sortingOrder={['asc', null]}
+                    headerName="# de Seguidores" 
                     flex={1}
                   />  
                   <AgGridColumn
-                    field="comment_percent"
-                    headerName="% de Engagement"
-                    sortable
-                    sortingOrder={['asc', null]}
+                    field="post_count"
+                    headerName="% de Engagement" 
                     flex={1}
                   />
                   <AgGridColumn
@@ -278,17 +254,13 @@ const MicroinfluencerFinder = () => {
               <CModal
                 show={errorModal}
                 onClose={() => setErrorModal(!errorModal)}
-                color="danger"
-              >
+                color="danger">
                 <CModalHeader closeButton>
                   <CModalTitle>Hubo un error...</CModalTitle>
                 </CModalHeader>
                 <CModalBody>Ha ocurrido un error obteniendo la data</CModalBody>
                 <CModalFooter>
-                  <CButton
-                    color="danger"
-                    onClick={() => setErrorModal(!errorModal)}
-                  >
+                  <CButton color="danger" onClick={() => setErrorModal(!errorModal)} >
                     Cerrar
                   </CButton>
                 </CModalFooter>

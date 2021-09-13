@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import {
@@ -87,8 +87,7 @@ const ScraperInstagram = () => {
     getProfiles();
   }, [page, pageSize]);
 
-  const navigateToScrape = (e) => {
-    console.log('row clicked', e);
+  const navigateToScrape = (e) => { 
     console.log(e.data.id, ' ', e.data.scraped_date['$date']);
     dispatch(Actions.selectScrape(e.data));
     history.push('/instagramscraper/scrape-summary');

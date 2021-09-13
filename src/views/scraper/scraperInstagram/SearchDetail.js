@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux'; 
 import {
   CCol,
   CRow,
@@ -28,7 +27,7 @@ import PaginationBox from 'src/reusable/PaginationBox';
 import * as Actions from 'src/actions/instagramActions';
 import service from 'src/services/instagram';
 
-const ScrapeDetail = () => {
+const SearchDetail = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [rowData, setRowData] = useState(null);
@@ -85,10 +84,6 @@ const ScrapeDetail = () => {
     updateGrid();
   }, [page, pageSize, scrapedProfile, sortedColumn]);
 
-  const selectUser = (userData) => {
-    dispatch(Actions.selectUser(userData));
-  };
-
   const onBtFirst = () => {
     setPage(1);
   };
@@ -138,9 +133,9 @@ const ScrapeDetail = () => {
     }
   };
 
-  if (!scrapedProfile || !scrapedProfile.scraped_date) {
-    return <Redirect to="/instagramscraper" />;
-  }
+//   if (!scrapedProfile || !scrapedProfile.scraped_date) {
+//     return <Redirect to="/instagramscraper" />;
+//   }
 
   return (
     <>
@@ -210,7 +205,7 @@ const ScrapeDetail = () => {
         <CCol sm="6" xxl="7">
           <CCard>
             <CCardHeader>
-              <h5 className="card-title">Distribución de interacciones</h5>
+              <h5 className="card-title">Distribución normal del Engagement de los seguidores</h5>
             </CCardHeader>
             <CCardBody className="chart-container">
               <div className="chart-canvas">
@@ -244,7 +239,7 @@ const ScrapeDetail = () => {
         <CCol xs="12">
           <CCard>
             <CCardHeader>
-              <h5 className="card-title">Engagement de los usuarios</h5>
+              <h5 className="card-title">Micro-influenciadores potenciales identificados en los seguidores de @{scrapedProfile.username}</h5>
             </CCardHeader>
             <CCardBody>
               <div
@@ -268,128 +263,7 @@ const ScrapeDetail = () => {
                       >
                         <CIcon name="cib-instagram" height="24" />
                       </a>
-                    ),
-                    userComponent: (params) => (
-                      <Link
-                        to="/instagramscraper/scrape-summary/user-detail"
-                        onClick={() => selectUser(params.data)}
-                      >
-                        {params.value}
-                      </Link>
-                    ),
-                  }}
-                >
-                  <AgGridColumn
-                    field="username"
-                    headerName="Usuario"
-                    cellRenderer="userComponent"
-                    flex={1}
-                  />
-                  <AgGridColumn
-                    field="like_count"
-                    headerName="# de Likes"
-                    sortable
-                    sortingOrder={['asc', null]} 
-                    flex={1}
-                  />
-                  <AgGridColumn
-                    field="like_percent"
-                    headerName="% de Likes"
-                    flex={1}
-                  />
-                  <AgGridColumn
-                    field="comment_count"
-                    headerName="# de Comentarios"
-                    sortable 
-                    sortingOrder={['asc', null]} 
-                    flex={1}
-                  />
-                  <AgGridColumn
-                    field="comment_percent"
-                    headerName="% de Comentarios"
-                    flex={1}
-                  />
-                  <AgGridColumn
-                    field="username"
-                    headerName="Ver Perfil"
-                    cellRenderer="iconComponent"
-                    flex={1}
-                    maxWidth={150}
-                  />
-                </AgGridReact>
-              </div>
-              <PaginationBox
-                loading={loading}
-                rowData={rowData !== null}
-                page={page}
-                totalPages={totalPages}
-                exportGrid={exportGrid}
-                onBtFirst={onBtFirst}
-                onBtPrevious={onBtPrevious}
-                onBtNext={onBtNext}
-                onBtLast={onBtLast}
-              />
-              <CModal
-                show={errorModal}
-                onClose={() => setErrorModal(!errorModal)}
-                color="danger"
-              >
-                <CModalHeader closeButton>
-                  <CModalTitle>Hubo un error...</CModalTitle>
-                </CModalHeader>
-                <CModalBody>Ha ocurrido un error obteniendo la data</CModalBody>
-                <CModalFooter>
-                  <CButton
-                    color="danger"
-                    onClick={() => setErrorModal(!errorModal)}
-                  >
-                    Cerrar
-                  </CButton>
-                </CModalFooter>
-              </CModal>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-       {/* Tabla de micro-influenciadores */}
-       <CRow>
-        <CCol xs="12">
-          <CCard>
-            <CCardHeader>
-              <h5 className="card-title">Micro-influencers identificados en los seguidores del usuario</h5>
-            </CCardHeader>
-            <CCardBody>
-              <div
-                className="ag-theme-alpine"
-                style={{ height: 520, width: '100%' }}
-              >
-                <AgGridReact
-                  rowData={rowData}
-                  pagination={false}
-                  paginationPageSize={20}
-                  onGridReady={onGridReady}
-                  onSortChanged={onSortChanged}
-                  sortingOrder={['desc', 'asc', null]}
-                  frameworkComponents={{
-                    iconComponent: (params) => (
-                      <a
-                        href={`https://www.instagram.com/${params.value}/`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        <CIcon name="cib-instagram" height="24" />
-                      </a>
-                    ),
-                    userComponent: (params) => (
-                      <Link
-                        to="/instagramscraper/scrape-summary/influencer-detail"
-                        onClick={() => selectUser(params.data)}
-                        // cambiar a selectInfluencer
-                      >
-                        {params.value}
-                      </Link>
-                    ),
+                    ), 
                   }}
                 >
                   <AgGridColumn
@@ -402,16 +276,14 @@ const ScrapeDetail = () => {
                     field="like_count"
                     headerName="# de Seguidores"
                     sortable
-                    sortingOrder={['asc', null]}
-                    flex={1}
-                  />  
-                  <AgGridColumn
-                    field="comment_percent"
-                    headerName="% de Engagement"
-                    sortable
-                    sortingOrder={['asc', null]}
+                    sortingOrder={['asc', null]} 
                     flex={1}
                   />
+                  <AgGridColumn
+                    field="like_percent"
+                    headerName="% de Engagement"
+                    flex={1}
+                  /> 
                   <AgGridColumn
                     field="username"
                     headerName="Ver Perfil"
@@ -453,10 +325,10 @@ const ScrapeDetail = () => {
             </CCardBody>
           </CCard>
         </CCol>
-      </CRow>
+      </CRow> 
     </>
   );
 };
 
-export default ScrapeDetail;
+export default SearchDetail;
  
