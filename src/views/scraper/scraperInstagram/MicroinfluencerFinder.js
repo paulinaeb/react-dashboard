@@ -18,6 +18,7 @@ import {
 } from '@coreui/react'; 
 import CIcon from '@coreui/icons-react';
 import 'ag-grid-enterprise';
+import Plot from "react-plotly.js";
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
@@ -163,7 +164,7 @@ const MicroinfluencerFinder = () => {
        <CRow>
         <CCol xs="12">
         <section className="buscador">
-        <h3 className="card-title primary-title">Búsqueda de Micro-influenciadores en cuentas de Instagram</h3>
+        <h2 className="card-title primary-title">Búsqueda de Micro-influenciadores en cuentas de Instagram</h2>
         <CForm id="search-form" onSubmit={startFinding}>
             <CInput 
               type="text" 
@@ -268,7 +269,7 @@ const MicroinfluencerFinder = () => {
             </CCardBody>
           </CCard>
         </CCol>
-      </CRow>
+      </CRow> 
     </>
   );
 };

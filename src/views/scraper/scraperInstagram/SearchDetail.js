@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux'; 
+import { Redirect } from 'react-router-dom';
 import {
   CCol,
   CRow,
@@ -14,10 +15,9 @@ import {
   CModalHeader,
   CModalTitle,
   CButton,
-} from '@coreui/react';
-import { CChartPie } from '@coreui/react-chartjs';
+} from '@coreui/react'; 
 import CIcon from '@coreui/icons-react';
-
+import Plot from "react-plotly.js";
 import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
@@ -51,6 +51,27 @@ const SearchDetail = () => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
   };
+
+  const gaussianRand = () => {
+    var rand = 0;
+    for (var i = 0; i < 20; i += 1) {
+      rand += Math.random();
+    }
+    return rand;
+  };
+
+  const x = [];
+  for (var i=0; i<5000; i++){
+    x[i]= gaussianRand();
+  };
+
+  const trace = {
+    x:x, 
+    type: 'histogram',
+    hovertemplate: "En el rango (%{x})<br>de engagement se<br>encuentran %{y} usuarios <extra></extra>"
+  };
+
+  const data = [trace]
 
   useEffect(() => {
     const updateGrid = async () => {
@@ -133,108 +154,98 @@ const SearchDetail = () => {
     }
   };
 
-//   if (!scrapedProfile || !scrapedProfile.scraped_date) {
-//     return <Redirect to="/instagramscraper" />;
-//   }
+  if (!scrapedProfile || !scrapedProfile.scraped_date) {
+    return <Redirect to="/micro-influencer-finder" />;
+  }
 
   return (
     <>
-      <CRow>
-        {/* Información del usuario scrapeado */}
-        <CCol sm="6" xxl="5">
-          <CCard>
-            <CCardHeader className="pb-0">
-              <CRow>
-                <CCol xs="7">
-                  <h2>@{scrapedProfile.username}</h2>
-                </CCol>
-                <CCol xs="5" className="my-auto">
-                  <h6 className="my-auto">{formattedDate}</h6>
-                </CCol>
-              </CRow>
-            </CCardHeader>
-            <CCardBody>
-              <CRow>
-                <CCol sm="6" className="ta-center">
-                  <CWidgetProgressIcon
-                    header={scrapedProfile.follower_count}
-                    text="Seguidores"
-                    color="gradient-info"
-                    value={100}
-                    className="insta-info-card"
-                    inverse
-                  >
-                    <CIcon name="cil-people" height="36" />
-                  </CWidgetProgressIcon>
-                </CCol>
-                <CCol sm="6">
-                  <CWidgetProgressIcon
-                    header={scrapedProfile.following_count}
-                    text="Siguiendo"
-                    color="gradient-success"
-                    value={100}
-                    className="insta-info-card"
-                    inverse
-                  >
-                    <CIcon name="cil-userFollow" height="36" />
-                  </CWidgetProgressIcon>
-                </CCol>
-              </CRow>
-              <CRow className="justify-content-center">
-                <CCol sm="10">
-                  <CWidgetBrand
-                    color="instagram"
-                    rightHeader={`${scrapedProfile.total_engagement.toFixed(
-                      3
-                    )}%`}
-                    rightFooter="ENGAGEMENT"
-                    leftHeader={
-                      scrapedProfile.total_likes_count +
-                      scrapedProfile.total_comments_count
-                    }
-                    leftFooter="INTERACCIONES"
-                  >
-                    <CIcon name="cib-instagram" height="36" className="my-3" />
-                  </CWidgetBrand>
-                </CCol>
-              </CRow>
-            </CCardBody>
-          </CCard>
-        </CCol>
-        {/* Pie chart */}
-        <CCol sm="6" xxl="7">
-          <CCard>
-            <CCardHeader>
-              <h5 className="card-title">Distribución normal del Engagement de los seguidores</h5>
-            </CCardHeader>
-            <CCardBody className="chart-container">
-              <div className="chart-canvas">
-                <CChartPie
-                  datasets={[
-                    {
-                      backgroundColor: [ 
-                        '#00D8FF',
-                        '#DD1B16',
-                      ],
-                      data: [
-                        scrapedProfile.total_likes_count,
-                        scrapedProfile.total_comments_count,
-                      ],
-                    },
-                  ]}
-                  labels={['Likes', 'Comentarios']}
-                  options={{
-                    tooltips: {
-                      enabled: true,
-                    },
-                  }}
-                />
-              </div>
-            </CCardBody>
-          </CCard>
-        </CCol>
+    <CCardHeader>
+    <h5 className="card-title">
+        {`Información sobre el perfil analizado y Micro-influenciadores potenciales identificados`}
+    </h5>
+    </CCardHeader>
+    
+      <CRow>  
+          {/* Información del usuario scrapeado */}
+          <CCol sm="6" xxl="5">
+              <CCard> 
+                <CCardHeader className="pb-0">
+                  <CRow>
+                    <CCol xs="7">
+                      <h2>@{scrapedProfile.username}</h2>
+                    </CCol>
+                    <CCol xs="5" className="my-auto">
+                      <h6 className="my-auto">{formattedDate}</h6>
+                    </CCol>
+                  </CRow>
+                </CCardHeader>
+                <CCardBody>
+                  <CRow>
+                    <CCol sm="6" className="ta-center">
+                      <CWidgetProgressIcon
+                        header={scrapedProfile.follower_count}
+                        text="Seguidores"
+                        color="gradient-info"
+                        value={100}
+                        className="insta-info-card"
+                        inverse
+                      >
+                        <CIcon name="cil-people" height="36" />
+                      </CWidgetProgressIcon>
+                    </CCol>
+                    <CCol sm="6">
+                      <CWidgetProgressIcon
+                        header={scrapedProfile.following_count}
+                        text="Siguiendo"
+                        color="gradient-success"
+                        value={100}
+                        className="insta-info-card"
+                        inverse
+                      >
+                        <CIcon name="cil-userFollow" height="36" />
+                      </CWidgetProgressIcon>
+                    </CCol>
+                  </CRow>
+                  <CRow className="justify-content-center">
+                    <CCol sm="10">
+                      <CWidgetBrand
+                        color="instagram"
+                        rightHeader={`${scrapedProfile.total_engagement.toFixed(
+                          3
+                        )}%`}
+                        rightFooter="ENGAGEMENT"
+                        leftHeader={
+                          scrapedProfile.total_likes_count +
+                          scrapedProfile.total_comments_count
+                        }
+                        leftFooter="INTERACCIONES"
+                      >
+                        <CIcon name="cib-instagram" height="36" className="my-3" />
+                      </CWidgetBrand>
+                    </CCol>
+                  </CRow>
+                </CCardBody>
+              </CCard>
+            </CCol>
+            {/* Pie chart */}
+            <CCol sm="5" xxl="7">
+              <CCard>
+                <CCardHeader>
+                  <h4 className="card-title">Distribución normal del Engagement de los seguidores</h4>
+                </CCardHeader>
+                <CCardBody className="chart-container">
+                  <div className="chart-canvas" style={{ width: "100%", height: "100%" }}>
+                  <Plot
+                    data={data}
+                    layout={{height:398}}
+                  />  
+                  </div>
+                </CCardBody>
+              </CCard>
+            </CCol> 
       </CRow>
-      {/* Tabla de user engagements */}
+      {/* Tabla de micro - influenciadores potenciales */}
       <CRow>
         <CCol xs="12">
           <CCard>
