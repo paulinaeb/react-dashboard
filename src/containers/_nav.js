@@ -30,6 +30,10 @@ const _nav =  [
     ],
   },
   {
+    _tag: 'CSidebarNavTitle',
+    _children: ['Instagram Features']
+  },
+  {
     _tag:'CSidebarNavItem',
     name: 'Instagram Scraper',
     to: '/instagramscraper',
@@ -282,60 +286,11 @@ const _nav =  [
         to: '/500',
       },
     ],
-  },
-  {
-    _tag: 'CSidebarNavItem',
-    name: 'Disabled',
-    icon: 'cil-ban',
-    badge: {
-      color: 'secondary',
-      text: 'NEW',
-    },
-    addLinkClass: 'c-disabled',
-    'disabled': true
-  },
+  }, 
   {
     _tag: 'CSidebarNavDivider',
     className: 'm-2'
   },
-  {
-    _tag: 'CSidebarNavTitle',
-    _children: ['Labels']
-  },
-  {
-    _tag: 'CSidebarNavItem',
-    name: 'Label danger',
-    to: '',
-    icon: {
-      name: 'cil-star',
-      className: 'text-danger'
-    },
-    label: true
-  },
-  {
-    _tag: 'CSidebarNavItem',
-    name: 'Label info',
-    to: '',
-    icon: {
-      name: 'cil-star',
-      className: 'text-info'
-    },
-    label: true
-  },
-  {
-    _tag: 'CSidebarNavItem',
-    name: 'Label warning',
-    to: '',
-    icon: {
-      name: 'cil-star',
-      className: 'text-warning'
-    },
-    label: true
-  },
-  {
-    _tag: 'CSidebarNavDivider',
-    className: 'm-2'
-  }
 ]
 
 export default _nav

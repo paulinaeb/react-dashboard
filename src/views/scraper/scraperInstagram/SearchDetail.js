@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux'; 
+import { useSelector } from 'react-redux'; 
 import { Redirect } from 'react-router-dom';
 import {
   CCol,
@@ -23,8 +23,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
 
-import PaginationBox from 'src/reusable/PaginationBox';
-import * as Actions from 'src/actions/instagramActions';
+import PaginationBox from 'src/reusable/PaginationBox'; 
 import service from 'src/services/instagram';
 
 const SearchDetail = () => {
@@ -39,8 +38,7 @@ const SearchDetail = () => {
 
   const [errorModal, setErrorModal] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const dispatch = useDispatch();
+ 
   const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
 
   const formattedDate =
@@ -61,17 +59,29 @@ const SearchDetail = () => {
   };
 
   const x = [];
-  for (var i=0; i<5000; i++){
+  for (var i=0; i<1000; i++){
     x[i]= gaussianRand();
   };
 
   const trace = {
     x:x, 
     type: 'histogram',
+    mode: 'markers',
+    marker: { 
+      line: {
+        color: 'black',
+        width: 2
+      }
+    },
     hovertemplate: "En el rango (%{x})<br>de engagement se<br>encuentran %{y} usuarios <extra></extra>"
   };
 
   const data = [trace]
+
+  const handleClick = event => {
+    console.log("x vale: "+event.points[0].x+" usuarios: "+event.points[0].y); 
+    console.log("rango: "+(event.points[0].x+-0.1).toFixed(1)+" - "+(event.points[0].x+0.1).toFixed(1))
+}
 
   useEffect(() => {
     const updateGrid = async () => {
@@ -228,7 +238,7 @@ const SearchDetail = () => {
                 </CCardBody>
               </CCard>
             </CCol>
-            {/* Pie chart */}
+            {/* Distribucion normal del engagement de los seguidores */}
             <CCol sm="5" xxl="7">
               <CCard>
                 <CCardHeader>
@@ -239,6 +249,7 @@ const SearchDetail = () => {
                   <Plot
                     data={data}
                     layout={{height:398}}
+                    onClick={handleClick}
                   />  
                   </div>
                 </CCardBody>
