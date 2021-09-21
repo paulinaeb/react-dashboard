@@ -130,23 +130,19 @@ const MicroinfluencerFinder = () => {
     e.preventDefault();
     e.target.reset(); 
     try {
-      // res = await service.startScraper(
-      //   username,
-      //   email,
-      //   scrapingUser,
-      //   scrapingPass
-      // );
-
-      // console.log("response", res); 
+      res = await service.startFinder(
+        searchUser
+      );
+      console.log("response", res); 
     } catch (e) {
-      console.log('error en startScrape', e);
+      console.log('error en startFinding', e);
       toggleModal('danger', 'Ha ocurrido un error al inciar el buscador...');
     }
     if (res!= null){
       if (res.status === 202) {
         toggleModal(
           'success',
-          'Su solicitud está siendo procesada. Usted recibirá un correo indicando el status de su solicitud.'
+          'Su busqueda está siendo procesada. Usted recibirá un correo indicando el status de su solicitud.'
         );
       }
       else {
@@ -169,7 +165,7 @@ const MicroinfluencerFinder = () => {
             <CInput 
               type="text" 
               placeholder="usuario_ejemplo..." 
-              name="userSearch" 
+              name="searchUser" 
               method="post" 
               class="search-bar"
               onChange={(e) => setSearchUser(e.target.value)}

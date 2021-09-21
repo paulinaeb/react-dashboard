@@ -7,6 +7,12 @@ const client = axios.create({
 });
 
 const instagramService = {
+
+  // MICROINFLUENCER FINDER SERVICES
+  startFinder: (userSearch) =>
+    client.post('finder', {userSearch}),
+
+  // INSTAGRAM SCRAPER SERVICES
   getScrapedProfiles: (page, size) =>
     client.get('scraped-profiles', { params: { page, size } }),
 
