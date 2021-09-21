@@ -128,7 +128,7 @@ const MicroinfluencerFinder = () => {
   const startFinding = async (e) => {
     let res = null;
     e.preventDefault();
-    e.target.reset();
+    e.target.reset(); 
     try {
       // res = await service.startScraper(
       //   username,
@@ -146,7 +146,7 @@ const MicroinfluencerFinder = () => {
       if (res.status === 202) {
         toggleModal(
           'success',
-          'Su solicitud está siendo procesada. Si los datos suministrados son correctos, le llegará un correo al email indicado cuando los resultados del análisis estén listos.'
+          'Su solicitud está siendo procesada. Usted recibirá un correo indicando el status de su solicitud.'
         );
       }
       else {
@@ -174,7 +174,7 @@ const MicroinfluencerFinder = () => {
               class="search-bar"
               onChange={(e) => setSearchUser(e.target.value)}
             />
-            <CButton type="submit" class="search-button" disabled={!searchUser} >Ir</CButton>
+            <CButton type="submit" class="search-button" >Ir</CButton>
         </CForm>
        </section>
       {/* tabla de perfiles buscados */}
@@ -269,6 +269,17 @@ const MicroinfluencerFinder = () => {
             </CCardBody>
           </CCard>
         </CCol>
+        <CModal show={modal} onClose={() => setModal(!modal)} color={modalColor}>
+        <CModalHeader closeButton>
+          <CModalTitle>{modalMessage.title}</CModalTitle>
+        </CModalHeader>
+        <CModalBody>{modalMessage.body}</CModalBody>
+        <CModalFooter>
+          <CButton color={modalColor} onClick={() => setModal(!modal)}>
+            Continuar
+          </CButton>
+        </CModalFooter>
+      </CModal>
       </CRow> 
     </>
   );

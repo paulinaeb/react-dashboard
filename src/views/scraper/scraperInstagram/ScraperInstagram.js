@@ -113,7 +113,7 @@ const ScraperInstagram = () => {
       if (res.status === 202) {
         toggleModal(
           'success',
-          'Su solicitud está siendo procesada. Si los datos suministrados son correctos, le llegará un correo al email indicado cuando los resultados del análisis estén listos.'
+          'Su solicitud está siendo procesada. Usted recibirá un correo con el status de su solicitud de Scraping.'
         );
       }
       else {

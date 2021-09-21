@@ -69,7 +69,7 @@ const SearchDetail = () => {
     mode: 'markers',
     marker: { 
       line: {
-        color: 'black',
+        color: 'gray',
         width: 2
       }
     },
