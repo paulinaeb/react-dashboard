@@ -22,12 +22,10 @@ import {
   CModalTitle,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-
 import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
-
 import PaginationBox from 'src/reusable/PaginationBox';
 import * as Actions from 'src/actions/instagramActions';
 import service from 'src/services/instagram';

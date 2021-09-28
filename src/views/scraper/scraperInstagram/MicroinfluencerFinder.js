@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Link, Redirect } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 import {
   CCol,
@@ -17,8 +18,7 @@ import {
   CButton,
 } from '@coreui/react'; 
 import CIcon from '@coreui/icons-react';
-import 'ag-grid-enterprise';
-import Plot from "react-plotly.js";
+import 'ag-grid-enterprise'; 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
@@ -45,12 +45,7 @@ const MicroinfluencerFinder = () => {
   const [modalMessage, setModalMessage] = useState({ title: '', body: '' });
 
   const dispatch = useDispatch();
-  const history = useHistory();
-  const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
-
-  const formattedDate =
-    scrapedProfile.scraped_date &&
-    new Date(scrapedProfile.scraped_date['$date']).toLocaleString('es-VE');
+  const history = useHistory(); 
 
   const onGridReady = (params) => {
     setGridApi(params.api);
@@ -68,16 +63,22 @@ const MicroinfluencerFinder = () => {
     const getProfiles = async () => {
       setLoading(true);
       try {
-        let res = await service.getScrapedProfiles(page, pageSize);
-        setRowData(res.data.rows);
+        let res = await service.getSearchedProfiles(page, pageSize);
+        const formattedData = res.data.rows.map((e) => ({
+          ...e,
+          total_engagement: e.total_engagement.toFixed(1), 
+        }));
+        setRowData(formattedData);
         setTotalPages(Math.ceil(res.data.count / pageSize));
-        // console.log('response', res.data);
+        console.log('response: ', res.data);
         return res.data;
-      } catch (e) {
-        console.log('error en getProfiles', e);
+      } 
+      catch (e) {
+        console.log('error en getSearchedProfiles', e);
         setRowData(null);
         toggleModal('danger', 'Ha ocurrido un error obteniendo la data');
-      } finally {
+      } 
+      finally {
         setLoading(false);
       }
     };
@@ -85,8 +86,8 @@ const MicroinfluencerFinder = () => {
   }, [page, pageSize]);
 
   const navigateToScrape = (e) => { 
-    console.log(e.data.id, ' ', e.data.scraped_date['$date']);
-    dispatch(Actions.selectScrape(e.data));
+    console.log('usuario: '+e.data.username, ' fecha: ', e.data.scraped_date['$date']);
+    dispatch(Actions.selectInfluencer(e.data));
     history.push('/micro-influencer-finder/search-detail');
   };
 
@@ -106,24 +107,24 @@ const MicroinfluencerFinder = () => {
     setPage(totalPages);
   };
  
-  const exportGrid = async () => {
-    const { id, scraped_date } = scrapedProfile;
-    setLoading(true);
-    try {
-      let response = await service.exportEngagementsToCsv(id, scraped_date['$date']);
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'user_engagement_export.csv'); //or any other extension
-      document.body.appendChild(link);
-      link.click();
-    } catch (e) {
-      console.log('error en export\n', e);
-      setErrorModal((showModal) => !showModal);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const exportGrid = async () => {
+  //   const { id, scraped_date } = scrapedProfile;
+  //   setLoading(true);
+  //   try {
+  //     let response = await service.exportEngagementsToCsv(id, scraped_date['$date']);
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.setAttribute('download', 'user_engagement_export.csv'); //or any other extension
+  //     document.body.appendChild(link);
+  //     link.click();
+  //   } catch (e) {
+  //     console.log('error en export\n', e);
+  //     setErrorModal((showModal) => !showModal);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const startFinding = async (e) => {
     let res = null;
@@ -187,7 +188,7 @@ const MicroinfluencerFinder = () => {
                   rowData={rowData}
                   pagination={false}
                   paginationPageSize={20}
-                  onGridReady={onGridReady}
+                  onGridReady={onGridReady} 
                   onRowClicked={navigateToScrape}
                   frameworkComponents={{
                     iconComponent: (params) => (
@@ -214,8 +215,7 @@ const MicroinfluencerFinder = () => {
                   />
                   <AgGridColumn
                     field="username"
-                    headerName="Usuario"
-                    cellRenderer="userComponent"
+                    headerName="Usuario" 
                     flex={1}
                   />
                   <AgGridColumn
@@ -224,7 +224,7 @@ const MicroinfluencerFinder = () => {
                     flex={1}
                   />  
                   <AgGridColumn
-                    field="post_count"
+                    field="total_engagement"
                     headerName="% de Engagement" 
                     flex={1}
                   />
@@ -242,7 +242,7 @@ const MicroinfluencerFinder = () => {
                 rowData={rowData !== null}
                 page={page}
                 totalPages={totalPages}
-                exportGrid={exportGrid}
+               // exportGrid={exportGrid}
                 onBtFirst={onBtFirst}
                 onBtPrevious={onBtPrevious}
                 onBtNext={onBtNext}

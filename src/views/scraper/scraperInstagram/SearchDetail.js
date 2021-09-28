@@ -22,7 +22,6 @@ import 'ag-grid-enterprise';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { AgGridReact, AgGridColumn } from 'ag-grid-react';
-
 import PaginationBox from 'src/reusable/PaginationBox'; 
 import service from 'src/services/instagram';
 
@@ -38,21 +37,21 @@ const SearchDetail = () => {
 
   const [errorModal, setErrorModal] = useState(false);
   const [loading, setLoading] = useState(true);
- 
-  const scrapedProfile = useSelector((state) => state.instagram.selectedScrape);
+  
+  const searchedProfile = useSelector((state) => state.instagram.selectedInfluencer);
 
   const formattedDate =
-    scrapedProfile.scraped_date &&
-    new Date(scrapedProfile.scraped_date['$date']).toLocaleString('es-VE');
+  searchedProfile.scraped_date &&
+    new Date(searchedProfile.scraped_date['$date']).toLocaleString('es-VE');
 
   const onGridReady = (params) => {
     setGridApi(params.api);
     setGridColumnApi(params.columnApi);
   };
-
+// funciones base para el histograma
   const gaussianRand = () => {
     var rand = 0;
-    for (var i = 0; i < 20; i += 1) {
+    for (var i = 0; i < 15; i += 1) {
       rand += Math.random();
     }
     return rand;
@@ -69,14 +68,14 @@ const SearchDetail = () => {
     mode: 'markers',
     marker: { 
       line: {
-        color: 'gray',
+        color: 'black',
         width: 2
       }
     },
-    hovertemplate: "En el rango (%{x})<br>de engagement se<br>encuentran %{y} usuarios <extra></extra>"
+    hovertemplate: "Esto es un ejemplo. Espere mientras se renderiza la data. En el rango (%{x})<br>de engagement se<br>encuentran %{y} usuarios <extra></extra>"
   };
 
-  const data = [trace]
+  const [data, setData] = useState([trace]);
 
   const handleClick = event => {
     console.log("x vale: "+event.points[0].x+" usuarios: "+event.points[0].y); 
@@ -85,35 +84,55 @@ const SearchDetail = () => {
 
   useEffect(() => {
     const updateGrid = async () => {
-      const { id, scraped_date } = scrapedProfile;
+      let res= null;
+      const { scraped_date } = searchedProfile;
       setLoading(true);
       try {
-        let res = await service.getScrapeDetails2(
-          id,
+          res = await service.getSearchDetail(
           scraped_date['$date'],
           page,
           pageSize,
           sortedColumn.field,
           sortedColumn.sort
         );
-        // console.log('response', res.data);
+        console.log('response 2: ', res.data);
         const formattedData = res.data.rows.map((e) => ({
           ...e,
-          like_percent: e.like_percent.toFixed(1),
-          comment_percent: e.comment_percent.toFixed(1),
+          total_engagement: e.total_engagement.toFixed(2),
         }));
         setRowData(formattedData);
         setTotalPages(Math.ceil(res.data.count / pageSize));
+        // actualizacion de la data del histograma
+        const y =[];
+        for (var i=0; i<res.data.rows.length; i++){
+          y[i]= res.data.rows[i].total_engagement;
+        //  console.log(res.data.rows[i].total_engagement)
+        };
+        const trace2 = {
+          x:y, 
+          type: 'histogram',
+          mode: 'markers',
+          marker: { 
+            line: {
+              color: 'black',
+              width: 2
+            }
+          },
+          hovertemplate: "En el rango (%{x})<br>de engagement se<br>encuentran %{y} usuarios <extra></extra>"
+        };
+        setData([trace2]);
+
       } catch (e) {
-        console.log('error en getUsersEngagement\n', e);
+        console.log('error en get searched profile\n', e);
         setRowData(null);
         setErrorModal((showModal) => !showModal);
       } finally {
         setLoading(false);
-      }
+        
+      } 
     };
     updateGrid();
-  }, [page, pageSize, scrapedProfile, sortedColumn]);
+  }, [page, pageSize, searchedProfile, sortedColumn]);
 
   const onBtFirst = () => {
     setPage(1);
@@ -146,7 +165,7 @@ const SearchDetail = () => {
   };
 
   const exportGrid = async () => {
-    const { id, scraped_date } = scrapedProfile;
+    const { id, scraped_date } = searchedProfile;
     setLoading(true);
     try {
       let response = await service.exportEngagementsToCsv(id, scraped_date['$date']);
@@ -164,18 +183,12 @@ const SearchDetail = () => {
     }
   };
 
-  if (!scrapedProfile || !scrapedProfile.scraped_date) {
+  if (!searchedProfile || !searchedProfile.scraped_date) {
     return <Redirect to="/micro-influencer-finder" />;
   }
 
   return (
-    <>
-    <CCardHeader>
-    <h5 className="card-title">
-        {`Información sobre el perfil analizado y Micro-influenciadores potenciales identificados`}
-    </h5>
-    </CCardHeader>
-    
+    <> 
       <CRow>  
           {/* Información del usuario scrapeado */}
           <CCol sm="6" xxl="5">
@@ -183,7 +196,7 @@ const SearchDetail = () => {
                 <CCardHeader className="pb-0">
                   <CRow>
                     <CCol xs="7">
-                      <h2>@{scrapedProfile.username}</h2>
+                      <h2>@{searchedProfile.username}</h2>
                     </CCol>
                     <CCol xs="5" className="my-auto">
                       <h6 className="my-auto">{formattedDate}</h6>
@@ -194,7 +207,7 @@ const SearchDetail = () => {
                   <CRow>
                     <CCol sm="6" className="ta-center">
                       <CWidgetProgressIcon
-                        header={scrapedProfile.follower_count}
+                        header={searchedProfile.follower_count}
                         text="Seguidores"
                         color="gradient-info"
                         value={100}
@@ -206,7 +219,7 @@ const SearchDetail = () => {
                     </CCol>
                     <CCol sm="6">
                       <CWidgetProgressIcon
-                        header={scrapedProfile.following_count}
+                        header={searchedProfile.following_count}
                         text="Siguiendo"
                         color="gradient-success"
                         value={100}
@@ -221,15 +234,13 @@ const SearchDetail = () => {
                     <CCol sm="10">
                       <CWidgetBrand
                         color="instagram"
-                        rightHeader={`${scrapedProfile.total_engagement.toFixed(
-                          3
-                        )}%`}
+                        rightHeader={`${searchedProfile.total_engagement}%`}
                         rightFooter="ENGAGEMENT"
                         leftHeader={
-                          scrapedProfile.total_likes_count +
-                          scrapedProfile.total_comments_count
+                          searchedProfile.total_likes_count +
+                          searchedProfile.total_comments_count
                         }
-                        leftFooter="INTERACCIONES"
+                        leftFooter="INTERACCIONES DEL ULTIMO POST"
                       >
                         <CIcon name="cib-instagram" height="36" className="my-3" />
                       </CWidgetBrand>
@@ -242,13 +253,13 @@ const SearchDetail = () => {
             <CCol sm="5" xxl="7">
               <CCard>
                 <CCardHeader>
-                  <h4 className="card-title">Distribución normal del Engagement de los seguidores</h4>
+                  <h4 className="card-title">Histograma de Frecuencias del Engagement de los seguidores</h4>
                 </CCardHeader>
                 <CCardBody className="chart-container">
                   <div className="chart-canvas" style={{ width: "100%", height: "100%" }}>
                   <Plot
                     data={data}
-                    layout={{height:398}}
+                    layout={{height:405, width: 650}}
                     onClick={handleClick}
                   />  
                   </div>
@@ -261,7 +272,7 @@ const SearchDetail = () => {
         <CCol xs="12">
           <CCard>
             <CCardHeader>
-              <h5 className="card-title">Micro-influenciadores potenciales identificados en los seguidores de @{scrapedProfile.username}</h5>
+              <h4 className="card-title">Micro-influenciadores potenciales identificados en los seguidores de @{searchedProfile.username}</h4>
             </CCardHeader>
             <CCardBody>
               <div
@@ -295,15 +306,15 @@ const SearchDetail = () => {
                     flex={1}
                   />
                   <AgGridColumn
-                    field="like_count"
-                    headerName="# de Seguidores"
-                    sortable
-                    sortingOrder={['asc', null]} 
+                    field="follower_count"
+                    headerName="# de Seguidores" 
                     flex={1}
                   />
                   <AgGridColumn
-                    field="like_percent"
+                    field="total_engagement"
                     headerName="% de Engagement"
+                    sortable
+                    sortingOrder={['desc', null]} 
                     flex={1}
                   /> 
                   <AgGridColumn
@@ -338,8 +349,7 @@ const SearchDetail = () => {
                 <CModalFooter>
                   <CButton
                     color="danger"
-                    onClick={() => setErrorModal(!errorModal)}
-                  >
+                    onClick={() => setErrorModal(!errorModal)}>
                     Cerrar
                   </CButton>
                 </CModalFooter>

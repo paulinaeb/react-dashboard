@@ -12,9 +12,19 @@ const instagramService = {
   startFinder: (userSearch) =>
     client.post('finder', {userSearch}),
 
+  getSearchedProfiles: (page, size) =>
+    client.get('searched-profiles', {params: {page, size}}),
+
+  getSearchDetail2: (userId, timestamp) =>
+    client.get('search-info', { params: {userId, timestamp}}),    
+
+  getSearchDetail: (timestamp, page, pageSize, sortBy, order)=>
+    client.get('search-info', {params: {timestamp, page, pageSize, sortBy, order},
+  }),
+
   // INSTAGRAM SCRAPER SERVICES
   getScrapedProfiles: (page, size) =>
-    client.get('scraped-profiles', { params: { page, size } }),
+    client.get('scraped-profiles', { params: { page, size }}),
 
   startScraper: (username, email, scrapingUser, scrapingPass) =>
     client.post('scrape', { username, email, scrapingUser, scrapingPass }),
@@ -23,8 +33,7 @@ const instagramService = {
     client.get('scrape-info', { params: { userId, timestamp } }),
 
   getScrapeDetails2: (userId, timestamp, page, pageSize, sortBy, order) =>
-    client.get('scrape-info', {
-      params: { userId, timestamp, page, pageSize, sortBy, order },
+    client.get('scrape-info', { params: { userId, timestamp, page, pageSize, sortBy, order },
     }),
 
   getUserDetails: (username, profileId, timestamp) =>
