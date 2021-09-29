@@ -72,14 +72,13 @@ const SearchDetail = () => {
         width: 2
       }
     },
-    hovertemplate: "Esto es un ejemplo. Espere mientras se renderiza la data. En el rango (%{x})<br>de engagement se<br>encuentran %{y} usuarios <extra></extra>"
+    hovertemplate: "Esto es un ejemplo. Espere mientras se renderiza la data correspondiente. <extra></extra>"
   };
 
   const [data, setData] = useState([trace]);
 
   const handleClick = event => {
-    console.log("x vale: "+event.points[0].x+" usuarios: "+event.points[0].y); 
-    console.log("rango: "+(event.points[0].x+-0.1).toFixed(1)+" - "+(event.points[0].x+0.1).toFixed(1))
+    console.log("x vale: "+event.points[0].x+" usuarios: "+event.points[0].y);  
 }
 
   useEffect(() => {
@@ -128,7 +127,6 @@ const SearchDetail = () => {
         setErrorModal((showModal) => !showModal);
       } finally {
         setLoading(false);
-        
       } 
     };
     updateGrid();
