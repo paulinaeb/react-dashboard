@@ -85,8 +85,7 @@ const MicroinfluencerFinder = () => {
     getProfiles();
   }, [page, pageSize]);
 
-  const navigateToScrape = (e) => { 
-    console.log('usuario: '+e.data.username, ' fecha: ', e.data.scraped_date['$date']);
+  const navigateToScrape = (e) => {  
     dispatch(Actions.selectInfluencer(e.data));
     history.push('/micro-influencer-finder/search-detail');
   };
@@ -105,26 +104,7 @@ const MicroinfluencerFinder = () => {
 
   const onBtLast = () => {
     setPage(totalPages);
-  };
- 
-  // const exportGrid = async () => {
-  //   const { id, scraped_date } = scrapedProfile;
-  //   setLoading(true);
-  //   try {
-  //     let response = await service.exportEngagementsToCsv(id, scraped_date['$date']);
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement('a');
-  //     link.href = url;
-  //     link.setAttribute('download', 'user_engagement_export.csv'); //or any other extension
-  //     document.body.appendChild(link);
-  //     link.click();
-  //   } catch (e) {
-  //     console.log('error en export\n', e);
-  //     setErrorModal((showModal) => !showModal);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  }; 
 
   const startFinding = async (e) => {
     let res = null;

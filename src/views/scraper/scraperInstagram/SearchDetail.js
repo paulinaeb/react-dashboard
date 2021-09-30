@@ -72,7 +72,7 @@ const SearchDetail = () => {
         width: 2
       }
     },
-    hovertemplate: "Esto es un ejemplo. Espere mientras se renderiza la data correspondiente. <extra></extra>"
+    hovertemplate: "Esto es un ejemplo.\n Espere mientras se renderiza la data correspondiente. <extra></extra>"
   };
 
   const [data, setData] = useState([trace]);
@@ -93,19 +93,33 @@ const SearchDetail = () => {
           pageSize,
           sortedColumn.field,
           sortedColumn.sort
-        );
-        console.log('response 2: ', res.data);
+        ); 
         const formattedData = res.data.rows.map((e) => ({
           ...e,
           total_engagement: e.total_engagement.toFixed(2),
         }));
         setRowData(formattedData);
         setTotalPages(Math.ceil(res.data.count / pageSize));
+      } catch (e) {
+        console.log('error en get searched profile\n', e);
+        setRowData(null);
+        setErrorModal((showModal) => !showModal);
+      } finally {
+        setLoading(false);
+      } 
+    };
+    updateGrid();
+
+    const updateChart = async () => {
+      let res= null;
+      const { scraped_date } = searchedProfile;
+      try{
+        res = await service.getAllSearchDetail(scraped_date['$date']);
+        console.log('response to all: ', res.data);
         // actualizacion de la data del histograma
         const y =[];
         for (var i=0; i<res.data.rows.length; i++){
-          y[i]= res.data.rows[i].total_engagement;
-        //  console.log(res.data.rows[i].total_engagement)
+          y[i]= res.data.rows[i].total_engagement; 
         };
         const trace2 = {
           x:y, 
@@ -120,16 +134,13 @@ const SearchDetail = () => {
           hovertemplate: "En el rango (%{x})<br>de engagement se<br>encuentran %{y} usuarios <extra></extra>"
         };
         setData([trace2]);
-
-      } catch (e) {
-        console.log('error en get searched profile\n', e);
-        setRowData(null);
+      }
+      catch(e){
+        console.log('error en actualizar el chart', e);
         setErrorModal((showModal) => !showModal);
-      } finally {
-        setLoading(false);
-      } 
-    };
-    updateGrid();
+      }
+    }
+    updateChart();
   }, [page, pageSize, searchedProfile, sortedColumn]);
 
   const onBtFirst = () => {
@@ -159,25 +170,6 @@ const SearchDetail = () => {
       setSortedColum({ field: toggledColumn.colId, sort });
     } else {
       setSortedColum({ field: null, sort: null });
-    }
-  };
-
-  const exportGrid = async () => {
-    const { id, scraped_date } = searchedProfile;
-    setLoading(true);
-    try {
-      let response = await service.exportEngagementsToCsv(id, scraped_date['$date']);
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'user_engagement_export.csv'); //or any other extension
-      document.body.appendChild(link);
-      link.click();
-    } catch (e) {
-      console.log('error en export\n', e);
-      setErrorModal((showModal) => !showModal);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -328,8 +320,7 @@ const SearchDetail = () => {
                 loading={loading}
                 rowData={rowData !== null}
                 page={page}
-                totalPages={totalPages}
-                exportGrid={exportGrid}
+                totalPages={totalPages} 
                 onBtFirst={onBtFirst}
                 onBtPrevious={onBtPrevious}
                 onBtNext={onBtNext}

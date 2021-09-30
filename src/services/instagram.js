@@ -15,11 +15,12 @@ const instagramService = {
   getSearchedProfiles: (page, size) =>
     client.get('searched-profiles', {params: {page, size}}),
 
-  getSearchDetail2: (userId, timestamp) =>
-    client.get('search-info', { params: {userId, timestamp}}),    
-
   getSearchDetail: (timestamp, page, pageSize, sortBy, order)=>
     client.get('search-info', {params: {timestamp, page, pageSize, sortBy, order},
+  }),
+
+  getAllSearchDetail:(timestamp)=>
+    client.get('all-search-info', {params: {timestamp},
   }),
 
   // INSTAGRAM SCRAPER SERVICES
