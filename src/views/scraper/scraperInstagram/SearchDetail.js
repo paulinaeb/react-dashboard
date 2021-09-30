@@ -37,6 +37,7 @@ const SearchDetail = () => {
 
   const [errorModal, setErrorModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const[number, setNumber] = useState(0);
   
   const searchedProfile = useSelector((state) => state.instagram.selectedInfluencer);
 
@@ -79,7 +80,7 @@ const SearchDetail = () => {
 
   const handleClick = event => {
     console.log("x vale: "+event.points[0].x+" usuarios: "+event.points[0].y);  
-}
+  }
 
   useEffect(() => {
     const updateGrid = async () => {
@@ -96,15 +97,17 @@ const SearchDetail = () => {
         ); 
         const formattedData = res.data.rows.map((e) => ({
           ...e,
-          total_engagement: e.total_engagement.toFixed(2),
+          total_engagement: parseFloat(e.total_engagement.toFixed(2)),
         }));
         setRowData(formattedData);
         setTotalPages(Math.ceil(res.data.count / pageSize));
-      } catch (e) {
+      } 
+      catch (e) {
         console.log('error en get searched profile\n', e);
         setRowData(null);
         setErrorModal((showModal) => !showModal);
-      } finally {
+      } 
+      finally {
         setLoading(false);
       } 
     };
@@ -114,8 +117,8 @@ const SearchDetail = () => {
       let res= null;
       const { scraped_date } = searchedProfile;
       try{
-        res = await service.getAllSearchDetail(scraped_date['$date']);
-        console.log('response to all: ', res.data);
+        res = await service.getAllSearchDetail(scraped_date['$date']); 
+        setNumber(res.data.rows.length);
         // actualizacion de la data del histograma
         const y =[];
         for (var i=0; i<res.data.rows.length; i++){
@@ -262,7 +265,7 @@ const SearchDetail = () => {
         <CCol xs="12">
           <CCard>
             <CCardHeader>
-              <h4 className="card-title">Micro-influenciadores potenciales identificados en los seguidores de @{searchedProfile.username}</h4>
+              <h4 className="card-title">{number} Micro-influenciadores potenciales identificados en los seguidores de @{searchedProfile.username}</h4>
             </CCardHeader>
             <CCardBody>
               <div
